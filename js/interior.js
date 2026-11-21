@@ -219,7 +219,7 @@ const FACTION_ACTS=[
   {t:'Переговоры с лидерами',  fx:F=>({fac:{[F.id]:{loy:2}}})},
   {t:'Призвать к порядку',     fx:F=>({rad:-3,fac:{[F.id]:{loy:-1}}})},
 ];
-const RNE_OUT={t:'Выставить из здания', fx:F=>({city:4,leg:3,hope:-4,rad:-5}), run:()=>{S.fac.rne.n=0;S.flags.brand=Math.max(0,(S.flags.brand||0)-1);}};
+const RNE_OUT={t:'Выставить из здания', fx:F=>({city:4,leg:3,hope:-4,rad:-5}), run:()=>{S.fac.rne.n=0;S.flags.rneOut=1;S.flags.brand=Math.max(0,(S.flags.brand||0)-1);}};
 const facActs=fid=>fid==='rne'?[FACTION_ACTS[0],RNE_OUT]:FACTION_ACTS;
 function facActState(fid,i){const f=S.fac[fid]; if(f.n<=0)return 'нет в здании'; if(S.used['f'+fid+i])return 'уже сегодня'; if(!S.orders)return 'нет приказов до утра'; return true;}
 function doFacAct(fid,i){if(facActState(fid,i)!==true)return; const a=facActs(fid)[i]; apply(a.fx(FACTIONS.find(F=>F.id===fid))); if(a.run)a.run();
@@ -360,7 +360,7 @@ let aBanQ=[],aBanBusy=0;
 function aBanner(t,d,good){aBanQ.push({t,d,good}); if(!aBanBusy)aBanNext();}
 function aBanNext(){const el=$('a-banner'), x=aBanQ.shift(); if(!x||screen!=='assault'||!S||!S.A||S.A.card==='fin'){aBanBusy=0;aBanQ=[];el.className='';return;} aBanBusy=1; el.innerHTML=`<b>${x.t}</b><span>${x.d}</span>`; el.className='on '+(x.good?'g':'b'); setTimeout(()=>{el.className='';setTimeout(aBanNext,350);},3200);}
 // ---------- развязка: перед экраном концовки объясняем, почему штурм кончился именно сейчас и что с каждой частью ----------
-function finale(id,why){const A=S.A; A.card='fin'; A.finId=id; aBanQ=[]; $('a-banner').className='';
+function finale(id,why){const A=S.A; A.card='fin'; A.finId=id; if(why!==undefined)A.finWhy=why; else why=A.finWhy; save(); aBanQ=[]; $('a-banner').className='';
   const unitLine=u=>{const U=UNITS.find(x=>x.id===u.id), st=uState(u), m=Math.round(uMorV(u)), lost=fmt(u.lost||0);
     const t=u.id==='alpha'&&A.alpha==='wait'?['','в бой так и не ввели']:st==='refuse'?['p',u.id==='alpha'?'отказались штурмовать':'отказались выполнять приказ, в бою не были']:st==='stopped'?['p','выведены из боя'+(u.why?' ('+u.why+')':'')+(u.id==='tanks'?'':', потери '+lost)]
       :st==='halt'?['p','встали и не идут: дух '+m+'%'+(u.id==='tanks'?'':', потери '+lost)]:st==='waver'?['','колеблются: дух '+m+'%'+(u.id==='tanks'?'':', потери '+lost)]:['n',(u.id==='tanks'?'ведут огонь':'наступают')+': дух '+m+'%'+(u.id==='tanks'?'':', потери '+lost)];
