@@ -541,7 +541,7 @@ function endTurn(){ Sfx.play('night'); const d0={...snap(),hope:S.hope,rad:S.rad
   if(dc)notes.push('Борьба за Москву: '+sg(dc));
   if(S.flags.komp>0)S.flags.komp--;
   if(S.mil>=400)S.rad=clamp(S.rad+1,0,100);
-  if(S.phase===2){const o0=S.omon==null?100:S.omon; let o=o0+4; if(S.pts.mer>=65)o-=4; if(S.city>=60)o-=2; S.omon=clamp(o,0,100); if(o0<100&&S.omon>o0)notes.push('ОМОНу выдали премии: готовность '+S.omon+'%');}
+  if(S.phase===2){const o0=S.omon==null?100:S.omon; let o=o0+4; if(S.pts.mer>=65)o-=4; if(S.pts.mvd>=50)o-=4; if(S.city>=60)o-=2; S.omon=clamp(o,0,100); if(o0<100&&S.omon>o0)notes.push('ОМОНу выдали премии: готовность '+S.omon+'%');}
   // resolve is the unity of the House: when it cracks, deputies walk out
   if(S.phase===2&&S.hope<45){let out=Math.round((45-S.hope)/5)+2, o0=out; for(const id of ['kol','sm','agr','ros']){const f=S.fac[id],k=Math.min(f.n,out);f.n-=k;out-=k;if(f.n<4){f.n=0;f.room=null;} if(!out)break;} notes.push('Раскол: ушли '+(o0-out)+' депутатов');}
   S.hope=clamp(S.hope-(S.phase===2?4:1)-(S.sup<3?1:0)+RP.hope+dh,0,100);
@@ -625,8 +625,9 @@ function endTurn(){ Sfx.play('night'); const d0={...snap(),hope:S.hope,rad:S.rad
   S.am=snap();
   if(S.phase===2){
     // без штурма возможен только редкий компромисс: все восемь условий сразу. Иначе загнанный в угол Кремль идёт на штурм, а победа засчитывается после боя
-    if(dealScore().every(x=>x[0]))return ending('elect_deal');
-    if(!S.flags.corner&&S.pr<100){ const dealNear=dealScore().slice(0,7).every(x=>x[0]); /* полный мирный набор: Кремль ждёт до 1 октября и идёт на выборы */ const c=(S.day>=15&&S.pts.mo>=80&&S.pts.gs>=80)?'army':(!dealNear&&(S.flags.zero||0)>=1&&S.leg>=80&&S.city>=72&&S.day>=13)?'elect':0; if(c){S.flags.corner=c;S.pr=100;} }
+    if(S.day>=15&&S.pts.mo>=80&&S.pts.gs>=80&&S.pr<100)return ending('win_army',1); // армия за Съезд: штурмовать некому
+    if(dealScore().every(x=>x[0])&&!S.flags.dealNo){ if(Math.random()<.45)return ending('elect_deal'); S.flags.dealNo=1; S.flags.corner='elect'; S.pr=100; } // Кремль соглашается не всегда: иначе идёт на штурм
+    if(!S.flags.corner&&S.pr<100){ const dealNear=dealScore().slice(0,7).every(x=>x[0]); /* полный мирный набор: Кремль ждёт до 1 октября и идёт на выборы */ const c=(!dealNear&&(S.flags.zero||0)>=1&&S.leg>=80&&S.city>=72&&S.day>=13)?'elect':0; if(c){S.flags.corner=c;S.pr=100;} }
   }
   if(checkLose())return;
   S.paper=1; save(); showPaper();
@@ -778,8 +779,8 @@ function ASSAULT(){return {id:'assault',pic:'whf',time:'07:00',urgent:1,tag:'Ф�
     {t:'Вывести людей под гарантии',e:'депутаты сдаются без боя',go:()=>ending('surrender')},
   ]};}
 const ENDINGS={
-  win_army:{win:1,pic:'whf',h:'АРМИЯ С НАРОДОМ',q:'Последний штурм отбит, армия перешла на сторону Съезда',
-    p:'Кремль бросил на здание всех, кто ещё выполнял приказы, и этого не хватило. К вечеру командующие округами объявили, что подчиняются Съезду. Без армии Кремлю нечем ответить. Ельцин соглашается на досрочные выборы президента.'},
+  win_army:{win:1,pic:'wh',h:'АРМИЯ С НАРОДОМ',q:'Министерство обороны и Генштаб поддержали Съезд',
+    p:'Командующие округами отказались выполнять указ №1400. Штурмовать парламент некому: без армии Кремлю нечем ответить. Ельцин соглашается на досрочные выборы президента.'},
   win_elect:{win:1,pic:'whf',h:'ВЫБОРЫ',q:'Штурм отбит, Кремль отступил',
     p:'Ельцин попробовал решить дело силой и не смог. Конституционный суд, советы регионов и пресса едины: указ незаконен. Кремль снимает блокаду и соглашается на одновременные выборы на условиях Съезда.'},
   elect_deal:{tier:'neu',pic:'wh',h:'НУЛЕВОЙ ВАРИАНТ',q:'Выборы вместо штурма',
