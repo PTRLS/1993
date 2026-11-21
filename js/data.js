@@ -1,4 +1,7 @@
-const VERSION='0.21';   // единственное место с номером версии: титул, 1993.html, APK. Поднимать при каждой сборке
+const VERSION='0.22';   // единственное место с номером версии: титул, 1993.html, APK. Поднимать при каждой сборке
+// автор и ссылка: если AUTHOR_URL пустой, показывается только имя
+const AUTHOR='Лосев Пётр', AUTHOR_URL='', AUTHOR_URL_NM='';
+function authorHTML(){return 'Автор: '+AUTHOR+(AUTHOR_URL?' · <a href="'+AUTHOR_URL+'" target="_blank" rel="noopener" style="color:inherit;pointer-events:auto" onclick="event.stopPropagation()">'+(AUTHOR_URL_NM||AUTHOR_URL.replace(/^https?:\/\//,''))+'</a>':'');}
 // ================= game data: points, actions, factions, rooms, media, decrees, events =================
 // Effects: leg Легитимность, ppl Люди (безоружные), mil Ополчение (люди с оружием), gun Оружие на складе,
 //          med Эфир (запас), sup Снабжение (дни), hope Решимость, rad Радикализм, pr давление Кремля (100 = штурм),

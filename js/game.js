@@ -969,7 +969,7 @@ function openFinal(){
    </div><div><h3>СУДЬБЫ</h3>${facs}
     <div class="ff"><span class="sw" style="background:#b3322b"></span><div><b>Хасбулатов и Руцкой</b><div>${win?'Остались у власти до досрочных выборов. Что было бы дальше, история не знает.':'Лефортово. 26 февраля 1994 года вышли по амнистии Государственной думы.'}</div></div></div>
     <h3>КАК БЫЛО НА САМОМ ДЕЛЕ</h3><div class="fo">Указ №1400 вышел 21 сентября. 4 октября танки с Новоарбатского моста расстреляли Белый дом, к вечеру защитники сдались. Погибли, по официальным данным, около 150 человек. В декабре приняли новую Конституцию.</div>
-   </div></div><div class="close">ESC — закрыть</div>`;
+   </div></div><div class="sub" style="text-align:center;margin-top:6px">Игра «1993» · ${authorHTML()}</div><div class="close">ESC — закрыть</div>`;
   $('modal').classList.add('on'); $('modal-win').querySelector('.close').onclick=()=>$('modal').classList.remove('on');
 }
 function save(){store.set(SAVE,S);}
@@ -1072,3 +1072,5 @@ addEventListener('keydown',e=>{ if(e.key!=='0'||!S||screen==='title'||screen==='
  if(cheatOn())$('ver').style.color='#c0473a';}
 
 $('cheat-btn').onclick=openCheats; cheatSync();
+
+$('author').innerHTML=authorHTML();

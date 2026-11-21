@@ -18,6 +18,9 @@ import sys,re,html
 src,dst,url,title,desc=sys.argv[1:]
 s=open(src,encoding='utf-8').read()
 s=re.sub(r'\s*<script src="music/music\.js"[^>]*></script>','',s)
+import time
+stamp=str(int(time.time()))
+s=re.sub(r'((?:src|href)="(?:js|css)/[^"?]+\.(?:js|css))"',lambda m:m.group(1)+'?v='+stamp+'"',s)
 d=html.escape(desc,quote=True)
 meta=f'''
 <meta name="description" content="{d}">
