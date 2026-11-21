@@ -1,4 +1,4 @@
-const VERSION='0.53';   // единственное место с номером версии: титул, 1993.html, APK. Поднимать при каждой сборке
+const VERSION='0.54';   // единственное место с номером версии: титул, 1993.html, APK. Поднимать при каждой сборке
 // автор и ссылка: если AUTHOR_URL пустой, показывается только имя
 const AUTHOR='Лосев Пётр', AUTHOR_URL='https://twitter.com/peterloss', AUTHOR_URL_NM='@peterloss';
 function authorHTML(){return 'Автор: '+AUTHOR+(AUTHOR_URL?' · <a href="'+AUTHOR_URL+'" target="_blank" rel="noopener" style="color:inherit;pointer-events:auto" onclick="event.stopPropagation()">'+(AUTHOR_URL_NM||AUTHOR_URL.replace(/^https?:\/\//,''))+'</a>':'');}
