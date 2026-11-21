@@ -1,7 +1,6 @@
-# Источники портретов
+# Фото для портретов
 
 Все фото взяты с Викисклада (Wikimedia Commons), обрезаны и обработаны (пикселизация, палитра 25 цветов).
-Лицензии CC BY / CC BY-SA требуют указания автора; для релиза права нужно перепроверить.
 
 | Персонаж | Файл на Викискладе | Год | Автор | Лицензия |
 |---|---|---|---|---|
@@ -18,7 +17,3 @@
 | Абдулатипов | [Abdulatipov R.G.png](https://commons.wikimedia.org/wiki/File:Abdulatipov_R.G.png) | 2016 | Пресс-служба Главы и Правительства Дагестана | CC BY 3.0 |
 | Баркашов | [Barkashov.jpg](https://commons.wikimedia.org/wiki/File:Barkashov.jpg) | 2008 | Dennis Petrov | Public domain |
 | Терехов | [Lt. Col. Stanislav Terekhov speaks ....jpg](https://commons.wikimedia.org/wiki/File:Lt._Col._Stanislav_Terekhov_speaks_in_support_of_jailed_Colonel_Kvachkov.jpg) (в центре, у микрофона) | — | Andrey Bulkin | CC BY 3.0 |
-
-Ельцин — фото, присланное автором игры; права не выяснены.
-
-Без портрета (силуэт): Брагин, Тарасов, Головин — свободных фото не найдено.
