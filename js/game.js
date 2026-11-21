@@ -196,6 +196,7 @@ function menuGo(m){
   if(m==='new')introStart(newGame);
   else if(m==='cont'){const s=store.get(SAVE);if(!s)return;S=s;afterLoad();}
   else if(m==='chron')openChron();
+  else if(m==='ach')openAch();
 
 }
 function applyOpts(){}
@@ -227,7 +228,7 @@ function legDrift(S){const P=[],add=(v,t)=>{if(v)P.push([v,t]);};
 const pressLeg=S=>OUTLETS.reduce((a,o)=>{const st=outSt(S,o),e=st==='vs'?o.pas:st==='kr'?o.kpas:null;return a+((e&&e.fx.leg)||0);},0);
 // давление кольца за ночь; S.hold — что игрок оплачивает, чтобы терпеть
 function ringPress(S){const h=S.hold||{}, hv=(S.ring==null?100:S.ring)>=50; return {leg:h.cour?(hv?-2:-1):(hv?-4:-2), hope:h.ration?0:(hv?-3:-2), sup:(h.port||S.flags.gap>0)?0:(hv?.6:.4), med:h.cour?0:(hv?-2:-1), dep:h.cour?0:(hv?4:2)};}
-function syncRing(){ if(S.cordon){ if(S.ring==null)S.ring=100; if(S.ring<=0){S.cordon=0;S.ring=null;S.flags.gap=0;S.hold={};apply({hope:5,leg:3});log('Кольцо снято: к Белому дому снова идут люди и машины.');} } else S.ring=null; }
+function syncRing(){ if(S.cordon){ if(S.ring==null)S.ring=100; if(S.ring<=0){S.cordon=0;S.ring=null;S.flags.ringOff=1;S.flags.gap=0;S.hold={};apply({hope:5,leg:3});log('Кольцо снято: к Белому дому снова идут люди и машины.');} } else S.ring=null; }
 function halve(fx){const o={};for(const k in fx){const v=fx[k]; o[k]=typeof v==='object'?halve(v):(v<0?Math.ceil(v/2):Math.floor(v/2));}return o;}
 // лояльность фракций двигается каждую ночь: её тянут издания, которые фракция читает, и общее положение дел
 function facDrift(){const out=[]; for(const F of FACTIONS){const f=S.fac[F.id]; f.tr=null; if(F.kind!=='dep'||f.n<=0)continue; let v=0; const up=[],dn=[];
@@ -820,7 +821,7 @@ function ending(id,exact){
   if(!exact&&id==='held'&&(S.rad>=70||(S.leg<35&&S.A&&S.A.air<30)||(S.A&&S.A.air<50&&(S.A.lost||0)+S.A.units.reduce((x,u)=>x+(u.lost||0),0)>=1500)))id='held_iso'; // без прессы или ценой большой крови без камер // кучка радикалов без прессы: отбились, но никто не признал
   const E={...ENDINGS[id]}; if(id==='fell')E.h=dateStr(S.day).toUpperCase(); if(S.A)S.A.card=0; $('modal').classList.remove('on');
   store.del(SAVE); store.set(CHRON,S.chron);
-  S.endId=id; stat('end-'+({win:'win',neu:'neutral'}[endTier(id)]||'lose')+'-'+id.replace(/_/g,'-'));
+  S.endId=id; if(typeof achEnd==='function')achEnd(id); stat('end-'+({win:'win',neu:'neutral'}[endTier(id)]||'lose')+'-'+id.replace(/_/g,'-'));
   showEvent({...E,tier:endTier(id),id:'end',end:1,time:'',urgent:0,ch:[
     {t:'Что стало с каждым',go:()=>showEpi(0)},
     {t:'Итоги в цифрах',go:()=>openFinal()},

@@ -17,3 +17,9 @@
 | Абдулатипов | [Abdulatipov R.G.png](https://commons.wikimedia.org/wiki/File:Abdulatipov_R.G.png) | 2016 | Пресс-служба Главы и Правительства Дагестана | CC BY 3.0 |
 | Баркашов | [Barkashov.jpg](https://commons.wikimedia.org/wiki/File:Barkashov.jpg) | 2008 | Dennis Petrov | Public domain |
 | Терехов | [Lt. Col. Stanislav Terekhov speaks ....jpg](https://commons.wikimedia.org/wiki/File:Lt._Col._Stanislav_Terekhov_speaks_in_support_of_jailed_Colonel_Kvachkov.jpg) (в центре, у микрофона) | — | Andrey Bulkin | CC BY 3.0 |
+
+
+
+## Иконка достижения «Олег Кашин»
+
+Сделана из фотографии, которую прислал автор игры (пикселизация 40×40, 24 цвета). Автор снимка и лицензия не установлены: перед публичным релизом права нужно проверить или заменить фото на свободное.
