@@ -95,8 +95,7 @@ for(const r of roads){const p=spline(r);for(const [x,y] of p){px(x*K,y*K,C.road)
 // Novy Arbat
 stroke(spline([[68,58],[90,62],[112,64],[128,64]]),1,C.road2);
 for(const [x,y] of spline([[68,58],[90,62],[112,64],[128,64]]))if(N(x|0,1)<.3)px(x*K,y*K,C.roadHi);
-// bridges
-for(const [x,y,s] of [[50,58,3.2],[63.5,68,3.2],[64,82,3.2],[54,100,3.2],[111,103,3.2],[127.5,83.8,3.2],[149,83.6,3.2],[173,99.5,3.2],[127.5,92.2,1.6],[149,96,1.6],[164.5,107.5,1.6]]){R(x-s/2,y-s/2,s,s,C.bridge[0]);R(x-s/2,y-s/2,s,.5,C.bridge[1]);}
+// мосты на карте не рисуем (решение Ивана 2026-11-21: выглядят плохо)
 
 // style extras
 if(BG==='aerial'){ // chains of sodium street lamps along the avenues and the rings
