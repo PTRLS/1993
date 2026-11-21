@@ -228,11 +228,17 @@ function doFacAct(fid,i){if(facActState(fid,i)!==true)return; const a=facActs(fi
 // =====================================================================================================
 // ===== the assault: a separate level, two hours per turn from 07:00 to 17:00 =====
 function unitStance(u){if(u.src==='alpha')return S.A&&S.A.alpha||'wait'; if(u.id==='omon'){const o=S.omon==null?100:S.omon;return o<=30?'refuse':o<=60?'waver':'attack';}const v=S.pts[u.src]; if(u.src==='mvd')return v>=50?'refuse':v>=30?'waver':'attack'; return v>=65?'refuse':v>=45?'waver':'attack';}
-const STANCE_NM={attack:'наступают',waver:'колеблются',refuse:'отказались',wait:'в резерве',stopped:'остановлены'};
+const STANCE_NM={attack:'наступают',waver:'колеблются',halt:'встали',refuse:'отказались',wait:'в резерве',stopped:'выведены'};
+// дух части решает, идёт ли она в бой: от 50 наступает, 25–49 колеблется (идёт вполсилы), ниже 25 стоит. Ельцин звонками тянет дух вверх, вы — вниз
+const MOR_GO=50, MOR_HALT=25;
+const uMorV=u=>u.mor==null?80:u.mor;
+const uEff=u=>u.cur<=3?0:u.cur*(uMorV(u)>=MOR_GO?1:uMorV(u)>=MOR_HALT?.55:0);
+function uState(u){const A=S.A; if(u.id==='alpha'&&A.alpha!=='attack')return A.alpha==='wait'?'wait':'refuse'; if(u.cur<=3)return u.st==='refuse'?'refuse':'stopped'; const m=uMorV(u); return m>=MOR_GO?'attack':m>=MOR_HALT?'waver':'halt';}
+const kDead=A=>A.units.reduce((a,u)=>a+(u.lost||0),0);
 function startAssault(){
   S.phase=3; S.queue=[];
   const A=S.A={r:0,shares:{entr:40,front:40,tower:20},ctl:{entr:100,front:100},fire:0,wnd:0,stock:Math.round(S.sup*2),ammo:Math.round(S.gun),airUsed:0,air:clamp(Math.round(S.med*.5+S.city*.2+(S.pts.ost>=100?15:0)),0,100),inc:{},incoming:0,orders:2,used:{},once:{},log:[],alpha:'wait'};
-  A.units=UNITS.map(u=>{const st=unitStance(u);return {id:u.id,cur:st==='refuse'?0:st==='waver'?u.str*.7:u.src==='alpha'?0:u.str,st,mor:u.src==='alpha'?95:st==='waver'?60:88,lost:0};});
+  A.units=UNITS.map(u=>{const st=unitStance(u);return {id:u.id,cur:st==='refuse'?0:st==='waver'?u.str*.9:u.src==='alpha'?0:u.str,st,mor:u.src==='alpha'?95:st==='waver'?44:85,lost:0,dead:0};});
   const ground=A.units.filter(u=>['taman','vv','omon'].includes(u.id));
   if(ground.every(u=>u.st==='refuse'))return ending('army_refused');
   const refused=A.units.filter(u=>u.st==='refuse').map(u=>UNITS.find(x=>x.id===u.id).nm);
@@ -288,20 +294,28 @@ function assaultSector(id){const A=S.A, F=defForce(), m=.5+S.hope/100, hq=1+.15*
   if(id==='entr')D*=1+S.bar*.1+.2*roomQ(S,'entr'); else if(id==='front')D*=1+S.bar*.05;
   const att=A.units.filter(u=>UNITS.find(x=>x.id===u.id).target===id);
   const snipe=1-towerCut(A);
-  const Araw=att.reduce((a,u)=>a+u.cur*(.6+(u.mor==null?80:u.mor)/200),0)*snipe*(1-A.air/450)*(A.leak?1.12:1);
+  const Araw=att.reduce((a,u)=>a+uEff(u),0)*snipe*(1-A.air/450)*(A.leak?1.12:1);
   return {D,A:Araw,att};}
 function nextHour(){
   const A=S.A; if(!A||screen!=='assault')return;
   if(A.units.find(u=>u.id==='tanks').cur>0){Sfx.play('boom');Sfx.play('boom',1.3);} Sfx.play('burst',.6); Sfx.play('shots',2); if(A.fire>=3)Sfx.play('fire',2.4);
   if(A.incoming){S.ppl+=A.incoming;alog('К Белому дому прорвались москвичи: +'+fmt(A.incoming)+'.');A.incoming=0;}
   const medB=1-.2*roomQ(S,'med');
+  for(const u of A.units){u.mor0=uMorV(u);u.why='';}
+  A.last={}; let lostHour=0;
   for(const s of ['entr','front']){const {D,A:a,att}=assaultSector(s);const Ar=a*(.85+Math.random()*.3);
     if(Ar>D){A.ctl[s]=Math.max(0,A.ctl[s]-(Ar-D)*.75);}else A.ctl[s]=Math.min(100,A.ctl[s]+(D-Ar)*.5);
-    const lost=Math.round(Ar*2.6*medB*(A.medK||1)); A.lost=(A.lost||0)+lost; A.wnd+=Math.round(lost*.4); const fromMil=Math.min(S.mil,Math.round(lost*.7)); S.mil-=fromMil; S.ppl=Math.max(0,S.ppl-(lost-fromMil));
-    const tot=att.reduce((x,u)=>x+u.cur,0)||1; for(const u of att){if(u.cur<=0)continue;const dl=D*.13*u.cur/tot;u.cur=Math.max(0,u.cur-dl);u.lost=(u.lost||0)+Math.round(dl*9);uMor(u,-(dl*.5)-(Ar<=D?2:-3));}
+    // свои потери: держать вход тоже стоит людей, чем гуще оборона в проёме, тем больше ложится
+    const lost=Math.round(Ar*2.6*medB*(A.medK||1)*(.85+.15*Math.min(3,D/Math.max(Ar,1)))); lostHour+=lost; A.lost=(A.lost||0)+lost; A.wnd+=Math.round(lost*.4); const fromMil=Math.min(S.mil,Math.round(lost*.7)); S.mil-=fromMil; S.ppl=Math.max(0,S.ppl-(lost-fromMil));
+    // потери штурмующих растут с числом защитников; бьют по духу, а потеряв половину, часть выводят совсем
+    const on=att.filter(u=>uEff(u)>0), tot=on.reduce((x,u)=>x+uEff(u),0)||1; let kl=0;
+    for(const u of on){const U=UNITS.find(x=>x.id===u.id); const dl=Math.min(u.cur*.3,D*.13*uEff(u)/tot); u.cur=Math.max(0,u.cur-dl); u.dead=(u.dead||0)+dl; const k=Math.round(dl*9); u.lost=(u.lost||0)+k; kl+=k;
+      uMor(u,-(dl*1.0)-(Ar<=D?2:-2)); u.why=Ar<=D?'потери, вход не взят':'потери';
+      if(u.dead>=U.str*.6&&u.cur>3){u.cur=0;u.st='stopped';u.why='потеряли половину';alog(U.nm+': потеряли больше половины состава, часть отвели от здания.');}}
+    A.last[s]={D:Math.round(D),A:Math.round(Ar),lost,kl};
     const nm=SECTORS.find(x=>x.id===s).nm;
-    if(Ar>0)alog(`${nm}: ${Ar>D?'теснят':'держим'}. Потери ${fmt(lost)}.`,Ar>D?'bad':'');}
-  const T=A.units.find(u=>u.id==='tanks').cur;
+    if(Ar>0)alog(`${nm}: ${Ar>D?'теснят':'держим'}. Наши потери ${fmt(lost)}, их ${fmt(kl)}.`,Ar>D?'bad':'');}
+  const tk=A.units.find(u=>u.id==='tanks'), T=uEff(tk);
   if(T>0){const hl=Math.round(T/6+A.fire/5);S.hope=clamp(S.hope-hl,0,100);A.fire=Math.min(15,A.fire+T/20);
     const tl=Math.round(A.shares.tower/100*defForce()*.04*T/30);S.mil=Math.max(0,S.mil-tl);
     alog(`Танки бьют по башне. Горят этажи. Решимость −${hl}.`,'bad');}
@@ -309,20 +323,28 @@ function nextHour(){
   // wounded: the med post treats some; the rest lie in corridors and break morale
   const tr=Math.min(A.wnd,Math.round(A.wnd*.3*roomQ(S,'med')*(A.tunnel?2:1))); A.wnd-=tr; if(A.wnd>=40){const wl=Math.min(6,Math.round(A.wnd/80));if(wl){S.hope=clamp(S.hope-wl,0,100);alog(`Раненых некуда класть: ${fmt(A.wnd)}. Решимость −${wl}.`,'bad');}}
   // live air: while the world is watching, wavering units look for a reason to stop
-  if(A.air>=60)for(const u of A.units)if(u.st==='waver'&&u.cur>0&&Math.random()<.15){u.cur=0;u.st='stopped';alog(UNITS.find(x=>x.id===u.id).nm+': не хотят стрелять под камерами.');}
-  // дух штурмующих: камеры и собственные потери точат его каждый час; сломался — часть встаёт
-  for(const u of A.units){if(u.cur<=3)continue; uMor(u,-A.air/150); if(u.mor<=10){u.cur=0;u.st='stopped';alog(UNITS.find(x=>x.id===u.id).nm+': дух сломлен, солдаты отказались идти дальше.');}}
+  // камеры: эфир точит дух каждый час, а бойня под камерами точит вдвойне
+  {const bl=A.air>=40?Math.min(5,lostHour/50):0; for(const u of A.units){if(u.cur<=3)continue; const d=A.air/150+(uEff(u)>0?bl:0)+(A.air>=60&&uState(u)==='waver'?3:0); if(d>0){uMor(u,-d); if(d>=3&&!u.why)u.why='камеры';}}}
+  // танки одни не воюют: если пехота стоит, экипажи не хотят в одиночку расстреливать парламент
+  if(tk.cur>3&&!A.units.some(u=>u.id!=='tanks'&&uEff(u)>0)){uMor(tk,-20);tk.why='пехота встала';}
+  // большая кровь у Кремля: резервы не шлют, танкисты сникают
+  if(kDead(A)>=450&&tk.cur>3){uMor(tk,-8);if(!tk.why)tk.why='потери штурма';}
+  for(const u of A.units){if(u.cur<=3)continue; const was=u.mor0>=MOR_GO?2:u.mor0>=MOR_HALT?1:0, m=uMorV(u), now=m>=MOR_GO?2:m>=MOR_HALT?1:0; if(now===was)continue; const nm=UNITS.find(x=>x.id===u.id).nm;
+    alog(nm+': '+(now===0?'встали и дальше не идут':now===1?(was===2?'заколебались, идут вполсилы':'снова двинулись, но вполсилы'):'снова идут в атаку')+(u.why?' ('+u.why+')':'')+'.',now>was?'bad':'');}
+  // кровь меняет политику: каждые 500 убитых и раненых с обеих сторон — Радикализм +3, Легитимность −2
+  {const bl=Math.floor(((A.lost||0)+kDead(A))/500); if(bl>(A.blood||0)){const d=bl-(A.blood||0);A.blood=bl;S.rad=clamp(S.rad+3*d,0,100);S.leg=clamp(S.leg-2*d,0,100);alog(`Счёт убитых и раненых перевалил за ${fmt(bl*500)}. Радикализм +${3*d}, Легитимность −${2*d}.`,'bad');}}
   A.air=clamp(A.air+airGain(),0,100); // эфир не тает: каждый час капает от своих изданий
   // ammunition: every hour of fighting eats the stock; with empty magazines the doors hold much worse
   if(A.shares.tower<10){S.hope=clamp(S.hope-2,0,100);A.fire=Math.min(15,A.fire+1);alog('Башня пуста: верхние этажи заняли чужие стрелки, пожар тушить некому. Решимость −2.','bad');}
   if(S.mil>0){const am=Math.round(S.mil/8); const had=A.ammo>0; A.ammo=Math.max(0,A.ammo-am); if(had&&A.ammo<=0)alog('Патроны кончились. Оборона держится на прикладах и бутылках.','bad');}
   // siege: after noon reserves come up to the units whose structures stayed with the Kremlin, and the House tires
-  if(A.r>=5){S.hope=clamp(S.hope-1,0,100); if(A.r%2===1)for(const u of A.units){const U=UNITS.find(x=>x.id===u.id); if(u.cur>3&&u.st!=='refuse'&&u.st!=='stopped'){u.cur=Math.min(U.str*1.2,u.cur+U.str*.15);uMor(u,8);} } if(A.r%2===1)alog('К штурмующим подошли резервы. Здание берут измором.','bad');}
+  if(A.r>=5){S.hope=clamp(S.hope-1,0,100); if(A.r%2===1){ if(kDead(A)>=350)alog('Резервов нет: после таких потерь Кремль не решается слать новые части.'); else{for(const u of A.units){const U=UNITS.find(x=>x.id===u.id); if(u.cur>3&&uEff(u)>0){u.cur=Math.min(U.str*1.2,u.cur+U.str*.15);uMor(u,8);if(!u.why)u.why='резервы';}} alog('К штурмующим подошли резервы. Здание берут измором.','bad');} } }
   A.r++; A.orders=2; A.used={}; A.airUsed=0;
   if(A.ctl.entr<=0||A.ctl.front<=0)return ending('fell');
   if(S.hope<=0)return ending('broken');
   const active=A.units.filter(u=>u.cur>=3);
-  if(A.r>=HOURS.length||(!active.length&&A.alpha!=='wait'))return ending('held');
+  A.quiet=A.units.some(u=>uEff(u)>0)?0:(A.quiet||0)+1; // три часа подряд никто не идёт вперёд — штурм выдохся
+  if(A.r>=HOURS.length||((!active.length||A.quiet>=3)&&A.alpha!=='wait'))return ending('held');
   if(A.r===4&&A.alpha==='wait')return alphaCard();
   save(); renderAssault(); incidentCard();
 }
@@ -349,15 +371,24 @@ function alphaChoose(i){const A=S.A; const u=A.units.find(x=>x.id==='alpha'), ba
 }
 // ---------- incidents: one per hour, something happens and has to be balanced against the rest ----------
 const uMor=(u,d)=>{u.mor=clamp((u.mor==null?80:u.mor)+d,0,100);};
-const uOn=(A,id)=>A.units.find(u=>u.id===id).cur>3;
-function uMul(A,id,k,force){const u=A.units.find(x=>x.id===id),U=UNITS.find(x=>x.id===id); if(force&&u.cur<=3){u.cur=U.str*.4;u.st='attack';} u.cur=Math.min(U.str*1.5,u.cur*k);}
+const uOn=(A,id)=>uEff(A.units.find(u=>u.id===id))>0;
+function uMul(A,id,k,force){const u=A.units.find(x=>x.id===id),U=UNITS.find(x=>x.id===id); if(force&&u.cur<=3){u.cur=U.str*.4;u.st='attack';u.mor=Math.max(uMorV(u),60);} u.cur=Math.min(U.str*1.5,u.cur*k);}
 function uStop(A,id,why){const u=A.units.find(x=>x.id===id); u.cur=0;u.st='stopped';alog(UNITS.find(x=>x.id===id).nm+': '+why+'.');}
-function uBack(A,k){const u=A.units.find(u=>(u.st==='refuse'||u.st==='stopped')&&u.id!=='alpha'); if(!u)return; const U=UNITS.find(x=>x.id===u.id); u.cur=U.str*k;u.st='attack';alog(U.nm+': снова в строю.','bad');}
+function uBack(A,k){const u=A.units.find(u=>(u.st==='refuse'||u.st==='stopped')&&u.id!=='alpha'); if(!u)return; const U=UNITS.find(x=>x.id===u.id); u.cur=U.str*k;u.st='attack';u.mor=Math.max(uMorV(u),60);u.dead=0;alog(U.nm+': снова в строю.','bad');}
+const yCallUnit=A=>A.units.filter(u=>u.cur>3&&!u.called&&uMorV(u)<MOR_GO&&!(u.id==='alpha'&&A.alpha!=='attack')).sort((x,y)=>UNITS.find(q=>q.id===y.id).str-UNITS.find(q=>q.id===x.id).str)[0];
+const yCallLoy=u=>{const U=UNITS.find(x=>x.id===u.id);return U.src==='alpha'?40:u.id==='omon'?100-(S.omon==null?100:S.omon):S.pts[U.src];};
+const yCallGain=A=>Math.max(10,Math.round(40-yCallLoy(yCallUnit(A))/3)); // чем лояльнее вам структура, тем слабее действует звонок
+const yCallTalk=A=>clamp(.15+yCallLoy(yCallUnit(A))/200+S.leg/400,.1,.7);
 const INCIDENTS=[
   {id:'y_addr', cond:A=>A.r>=1, h:'ОБРАЩЕНИЕ ЕЛЬЦИНА', p:'В девять утра президент выходит в эфир: «Вооружённый мятеж в Москве будет подавлен. Те, кто пошёл против мирного города, получат по заслугам». Солдаты слушают по рациям.',
    ch:[{t:'Не отвечать',d:'дух всех частей +8 · Решимость −3',run:A=>{for(const u of A.units)uMor(u,8);S.hope=clamp(S.hope-3,0,100);}},
        {t:'Ответить в прямом эфире: депутаты в зале, стреляют по ним',d:'Эфир −8 · дух частей −6',rq:'Эфир 30',req:()=>S.A.air>=30&&S.A.air>=8,run:A=>{S.A.air-=8;for(const u of A.units)uMor(u,-6);}},
        {t:'Включить его речь на этажах: пусть слышат, что им обещано',d:'Решимость +4 · Радикализм +4',run:A=>{S.hope=clamp(S.hope+4,0,100);S.rad=clamp(S.rad+4,0,100);}}]},
+  // тяни-толкай: когда часть встала или заколебалась, Ельцин один раз лично звонит её командиру. Вернуть каждую часть он может только однажды
+  {id:'y_call', multi:1, prio:1, cond:A=>A.r>=1&&!!yCallUnit(A), h:'ЗВОНОК ИЗ КРЕМЛЯ', p:()=>{const u=yCallUnit(S.A),U=UNITS.find(x=>x.id===u.id);return `${U.nm}: дух ${Math.round(uMorV(u))}%, ${uState(u)==='halt'?'часть встала и не идёт на здание':'часть колеблется и идёт вполсилы'}. Ельцин лично звонит командиру: «Вы понимаете, чем кончится для вас отказ? Вперёд». Второй раз он этой части звонить не станет: либо сейчас, либо никогда.`;},
+   ch:[{t:'Не вмешиваться',d:()=>'дух части +'+yCallGain(S.A),run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;uMor(u,g);u.why='звонок Ельцина';}},
+       {t:'Выйти на их частоту: «Командир, приказ преступный, отвечать будете вы»',d:()=>'Эфир −10 · дух части только +'+Math.round(yCallGain(S.A)/3),rq:'Эфир 10',req:()=>S.A.air>=10,run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;A.air-=10;uMor(u,Math.round(g/3));u.why='звонок Ельцина, перебит эфиром';}},
+       {t:'Послать к ним депутатов-офицеров с белым флагом',d:()=>'шанс '+Math.round(yCallTalk(S.A)*100)+'%: часть уходит совсем. Иначе дух +'+yCallGain(S.A)+', Решимость −3',run:A=>{const u=yCallUnit(A),U=UNITS.find(x=>x.id===u.id),g=yCallGain(A),ok=Math.random()<yCallTalk(A);u.called=1; if(ok){u.cur=0;u.st='stopped';u.why='ушли после переговоров';alog(U.nm+': командир выслушал депутатов и увёл часть.');}else{uMor(u,g);u.why='звонок Ельцина';S.hope=clamp(S.hope-3,0,100);alog('Парламентёров не подпустили к командиру.','bad');}}}]},
   {id:'y_order', cond:A=>A.r>=4&&A.units.some(u=>u.cur>3&&u.mor<=45), h:'ПРИКАЗ ЗА ПОДПИСЬЮ', p:'Командирам частей привезли письменный приказ президента с личной подписью. Теперь отказ — это трибунал, а не колебания.',
    ch:[{t:'Ничего не сделать',d:'дух всех частей +15',run:A=>{for(const u of A.units)if(u.cur>3)uMor(u,15);}},
        {t:'Напомнить в эфире: приказ незаконен, отвечать будет исполнитель',d:'Эфир −10 · дух +5 вместо +15',rq:'Легитимность 50',req:()=>S.leg>=50&&S.A.air>=10,run:A=>{S.A.air-=10;for(const u of A.units)if(u.cur>3)uMor(u,5);}}]},
@@ -378,10 +409,10 @@ const INCIDENTS=[
    ch:[{t:'Ответить огнём поверх голов',d:'ОМОН +10% · Решимость +2',run:A=>{uMul(A,'omon',1.1);S.hope=clamp(S.hope+2,0,100);}},
        {t:'Вывести депутатов с удостоверениями на ступени',d:'ОМОН уходит',rq:'кворум: '+QUORUM+' депутатов',req:()=>deputies(S)>=QUORUM,run:A=>uStop(A,'omon','увидели депутатов и отошли от здания')},
        {t:'Напомнить, что мэрия их подставила',d:'ОМОН −40%',rq:'Мэрия 40',req:()=>S.pts.mer>=40,run:A=>uMul(A,'omon',.6)}]},
-  {id:'u_general', cond:A=>A.r>=2&&A.units.some(u=>u.st==='waver'&&u.cur>3), h:'ГЕНЕРАЛ НА МОСТУ', p:'Кремль прислал к колеблющимся частям генерала с письменным приказом и угрозой трибунала. Он обходит строй и смотрит в глаза командирам.',
-   ch:[{t:'Ждать',d:'колеблющиеся части идут в атаку в полную силу',run:A=>{for(const u of A.units)if(u.st==='waver'&&u.cur>3){u.st='attack';u.cur=UNITS.find(x=>x.id===u.id).str;}}},
+  {id:'u_general', cond:A=>A.r>=2&&A.units.some(u=>uState(u)==='waver'), h:'ГЕНЕРАЛ НА МОСТУ', p:'Кремль прислал к колеблющимся частям генерала с письменным приказом и угрозой трибунала. Он обходит строй и смотрит в глаза командирам.',
+   ch:[{t:'Ждать',d:'колеблющиеся части идут в атаку в полную силу',run:A=>{for(const u of A.units)if(uState(u)==='waver'){u.st='attack';u.mor=70;}}},
        {t:'Послать навстречу депутатов-генералов',d:'части остаются колебаться и слабеют на 15%',rq:'Генштаб 45',req:()=>S.pts.gs>=45,run:A=>{for(const u of A.units)if(u.st==='waver')u.cur*=.85;}},
-       {t:'Показать генерала с приказом в прямом эфире',d:'Эфир −15 · одна колеблющаяся часть уходит, остальные идут в атаку',rq:'Эфир 40',req:()=>S.A.air>=40,run:A=>{A.air-=15;const w=A.units.filter(u=>u.st==='waver'&&u.cur>3).sort((a,b)=>b.cur-a.cur);if(w[0])uStop(A,w[0].id,'ушли из-под камер');for(const u of w.slice(1)){u.st='attack';u.cur=UNITS.find(x=>x.id===u.id).str;}}}]},
+       {t:'Показать генерала с приказом в прямом эфире',d:'Эфир −15 · одна колеблющаяся часть уходит, остальные идут в атаку',rq:'Эфир 40',req:()=>S.A.air>=40,run:A=>{A.air-=15;const w=A.units.filter(u=>uState(u)==='waver').sort((a,b)=>b.cur-a.cur);if(w[0])uStop(A,w[0].id,'ушли из-под камер');for(const u of w.slice(1)){u.st='attack';u.cur=UNITS.find(x=>x.id===u.id).str;}}}]},
   {id:'u_tula', cond:A=>A.r>=5&&S.pts.gs<50, h:'ДЕСАНТНИКИ ИЗ ТУЛЫ', p:'К Москве подошёл полк Тульской дивизии. Командир полка до сих пор не понял, за кого его привезли, и ждёт у Кольцевой.',
    ch:[{t:'Ничего не сделать',d:'мотострелки +35%',run:A=>uMul(A,'taman',1.35,1)},
        {t:'Обратиться к нему по радио',d:'Эфир −10 · шанс 45%, что полк останется у Кольцевой',rq:'Эфир 10',req:()=>S.A.air>=10,run:A=>{S.A.air-=10;if(Math.random()<.45)alog('Тульский полк стоит у Кольцевой и в город не входит.');else{uMul(A,'taman',1.35,1);alog('Десантники вошли в город.','bad');}}},
@@ -456,16 +487,16 @@ const INCIDENTS=[
 ];
 function incidentCard(){const A=S.A; if(!A||screen!=='assault')return;
   let I=A.card==='inc'&&INCIDENTS.find(x=>x.id===A.incId);
-  if(!I){const pool=INCIDENTS.filter(x=>!A.inc[x.id]&&x.cond(A)); if(!pool.length)return; I=pool[Math.floor(Math.random()*pool.length)];}
+  if(!I){const pool=INCIDENTS.filter(x=>!A.inc[x.id]&&x.cond(A)); if(!pool.length)return; const pr=pool.filter(x=>x.prio); I=pr.length?pr[0]:pool[Math.floor(Math.random()*pool.length)];}
   if(A.card!=='inc')Sfx.play(/^u_|^y_/.test(I.id)?'static':'alarm',1.2);
   A.card='inc'; A.incId=I.id; save();
-  $('modal-win').innerHTML=`<h2>${I.h}</h2><div class="sub">${I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
-    return `<div class="law${lk?' lock':''}" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="e">${c.d}${c.rq?` · <span class="${lk?'n':'p'}">${lk?'нужно':'открыто'}: ${c.rq}</span>`:''}</div></div>`;}).join('');
+  $('modal-win').innerHTML=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
+    return `<div class="law${lk?' lock':''}" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="e">${typeof c.d==='function'?c.d():c.d}${c.rq?` · <span class="${lk?'n':'p'}">${lk?'нужно':'открыто'}: ${c.rq}</span>`:''}</div></div>`;}).join('');
   $('modal').classList.add('on');
   $('modal-win').querySelectorAll('.law').forEach(e=>e.onclick=()=>incChoose(+e.dataset.i));
 }
 function incChoose(i){const A=S.A, I=INCIDENTS.find(x=>x.id===A.incId), c=I&&I.ch[i]; if(!c||(c.req&&!c.req()))return;
-  A.card=0; A.inc[I.id]=1; $('modal').classList.remove('on'); c.run(A); alog(I.h.charAt(0)+I.h.slice(1).toLowerCase()+': '+c.t.toLowerCase()+'.');
+  A.card=0; if(!I.multi)A.inc[I.id]=1; $('modal').classList.remove('on'); c.run(A); alog(I.h.charAt(0)+I.h.slice(1).toLowerCase()+': '+c.t.toLowerCase()+'.');
   if(S.hope<=0)return ending('broken'); save(); renderAssault();}
 const A_ORDERS=[
   {t:'Контратака',                 d:'вход +20 · бойцы −50 · дух врага −7', req:()=>S.mil>=50||'нужно 50 бойцов',
@@ -494,7 +525,7 @@ const AIR=[
   {t:'Просить перемирия, чтобы вывезти раненых', cost:8, d:()=>`шанс ${Math.round(Math.min(.9,.3+S.A.air/100)*100)}%: раненые вывезены, Решимость +3`, req:()=>S.A.wnd>=20||'раненых немного',
    run:A=>{if(Math.random()<Math.min(.9,.3+A.air/100)){A.wnd=0;S.hope=clamp(S.hope+3,0,100);alog('Огонь стих на двадцать минут. «Скорые» забрали раненых.');}else alog('В перемирии отказано.','bad');}},
   {t:'Обращение к солдатам: не стреляйте', cost:12, d:()=>`шанс ${Math.round(Math.min(.45,.1+S.A.air/200)*100)}%, что одна колеблющаяся часть остановится; иначе натиск −6%`,
-   run:A=>{const g=A.units.filter(u=>u.cur>3&&u.st==='waver').sort((a,b)=>a.cur-b.cur)[0];
+   run:A=>{const g=A.units.filter(u=>uState(u)==='waver').sort((a,b)=>a.cur-b.cur)[0];
      if(g&&Math.random()<Math.min(.45,.1+A.air/200)){g.cur=0;g.st='stopped';alog(UNITS.find(x=>x.id===g.id).nm+': услышали обращение и прекратили огонь.');}else{for(const u of A.units){u.cur*=.94;uMor(u,-5);}alog('Солдаты слушают, но приказ есть приказ. Огонь стал реже.');}}},
   {t:'Показать миру пожар и раненых', cost:0, d:()=>'Эфир +15', run:A=>{A.air=Math.min(100,A.air+15);alog('Кадры горящего парламента идут по всем мировым каналам.');}},
   {t:'Назвать по именам командиров, отдавших приказ', cost:10, d:()=>'танки −25%, дух танкистов −15, Радикализм +3', req:()=>S.A.units.find(u=>u.id==='tanks').cur>0||'танки молчат',
@@ -533,19 +564,19 @@ function renderAssault(){
     ['stk','Запасы',fmt(A.stock||0),''],['air','Эфир',Math.round(A.air),'<span class="p">+'+airGain()+' в час</span>']];
   $('a-res').innerHTML=R.map(([k,nm,v,sub])=>`<div class="r"><div class="k">${nm}</div><div class="v${(k==='hope'&&S.hope<30)?' warn':''}">${v}${sub?` <small style="font-size:13px;font-family:'Tiny5'">${sub}</small>`:''}</div></div>`).join('');
   // section
-  const att={entr:0,front:0};for(const u of A.units){const t=UNITS.find(x=>x.id===u.id).target;if(t!=='tower')att[t]+=u.cur/3;}
+  const att={entr:0,front:0};for(const u of A.units){const t=UNITS.find(x=>x.id===u.id).target;if(t!=='tower')att[t]+=uEff(u)/3;}
   const unitsN=x=>Math.round(A.shares[x]/100*F/40);
   drawSection($('a-c'),{fac:S.fac,def:{entr:unitsN('entr'),front:unitsN('front'),tower:unitsN('tower')},att,fire:A.fire});
   $('a-status').innerHTML=A.log.slice(0,4).map(l=>`<div class="${l.cls}"><span class="tm">${l.h}</span> ${l.t}</div>`).join('');
   // units
-  $('a-units').innerHTML='<h2>СИЛЫ КРЕМЛЯ <span>сила</span></h2>'+A.units.map(u=>{const U=UNITS.find(x=>x.id===u.id);
-    const st=u.id==='alpha'?A.alpha:(u.st==='stopped'?'stopped':u.cur<1&&u.st!=='refuse'?'stopped':u.st);
-    const on=Math.round(u.cur/40*10);
-    const sub=`потери ${fmt(u.lost||0)} · дух ${Math.round(u.mor==null?80:u.mor)}%`;
-    return `<div class="urow ${st}"><span class="nm">${U.nm}<small class="${u.cur>3&&u.mor<=40?'p':''}">${sub}</small></span><span class="stt">${STANCE_NM[st]}</span><div class="b r">${Array.from({length:10},(_,i)=>`<i class="${i<on?'on':''}"></i>`).join('')}</div></div>`;}).join('');
+  $('a-units').innerHTML=`<h2>СИЛЫ КРЕМЛЯ <span>потери ${fmt(kDead(A))} · ваши ${fmt(A.lost||0)}</span></h2>`+A.units.map(u=>{const U=UNITS.find(x=>x.id===u.id);
+    const st=uState(u), m=Math.round(uMorV(u)), dm=u.mor0==null?0:Math.round(m-u.mor0);
+    const on=Math.round(uEff(u)/40*10);
+    const sub=u.cur<=3&&st!=='wait'?`потери ${fmt(u.lost||0)}${u.why?' · '+u.why:''}`:`потери ${fmt(u.lost||0)} · дух ${m}%`+(dm?` <span class="${dm<0?'p':'n'}">${dm<0?'▼':'▲'}${Math.abs(dm)}${u.why?' '+u.why:''}</span>`:'');
+    return `<div class="urow ${st}"><span class="nm">${U.nm}<small>${sub}</small></span><span class="stt">${STANCE_NM[st]}</span><div class="b r">${Array.from({length:10},(_,i)=>`<i class="${i<on?'on':''}"></i>`).join('')}</div></div>`;}).join('')+'<div class="uhint">дух от 50: идут · 25–49: вполсилы · ниже 25: стоят. Потери и эфир сбивают дух. Ельцин может один раз вернуть часть звонком</div>';
   // sectors
   $('a-sect').innerHTML=`<h2>ОБОРОНА <span>сила ${fmt(F)} · патронов на ${S.mil>0?Math.floor(A.ammo/Math.max(1,Math.round(S.mil/8))):'—'} ч.</span></h2>`+SECTORS.map(s=>{const sh=A.shares[s.id];const c=A.ctl[s.id];
-    const pr=s.id==='tower'?`<small class="${sh<10?'n':'p'}">${sh<10?'пусто: чужие стрелки наверху, Решимость −2/час':'снайперы: натиск на оба входа −'+Math.round(towerCut(A)*100)+'%'}</small>`:(()=>{const {D,A:a}=assaultSector(s.id);return `<small class="${a>D?'n':'p'}">${a>D?'натиск сильнее':'держим'} · ${Math.round(D)} против ${Math.round(a)}</small>`;})();
+    const pr=s.id==='tower'?`<small class="${sh<10?'n':'p'}">${sh<10?'пусто: чужие стрелки наверху, Решимость −2/час':'снайперы: натиск на оба входа −'+Math.round(towerCut(A)*100)+'%'}</small>`:(()=>{const {D,A:a}=assaultSector(s.id);const L=A.last&&A.last[s.id];return `<small class="${a>D?'n':'p'}">оборона ${Math.round(D)} против натиска ${Math.round(a)}: ${a>D?'теснят':'держим'}${L?` · за час: мы −${fmt(L.lost)}, они −${fmt(L.kl)}`:''}</small>`;})();
     return `<div class="srow"><span class="nm">${s.nm}${pr||`<small>${s.sub}</small>`}</span>
       ${c===undefined?'<span></span>':`<div class="ctl"><i style="width:${c}%"></i></div>`}
       <span class="sh"><b data-s="${s.id}" data-d="-1">−</b>${sh}%<b data-s="${s.id}" data-d="1">+</b></span></div>`;}).join('');
@@ -558,5 +589,5 @@ function renderAssault(){
 
 // candle flicker on the section screens
 setInterval(()=>{secTick++; if(screen==='wh'&&S)drawSection($('w-c'),{fac:S.fac,cordon:S.cordon,calm:S.phase===1,lit:!S.flags.noPower,st:{hope:S.hope,rad:S.rad,ppl:S.ppl,dep:deputies(S),radio:S.flags.radio}});
-  else if(screen==='assault'&&S&&S.A){const A=S.A,F=defForce();const att={entr:0,front:0};for(const u of A.units){const t=UNITS.find(x=>x.id===u.id).target;if(t!=='tower')att[t]+=u.cur/3;}
+  else if(screen==='assault'&&S&&S.A){const A=S.A,F=defForce();const att={entr:0,front:0};for(const u of A.units){const t=UNITS.find(x=>x.id===u.id).target;if(t!=='tower')att[t]+=uEff(u)/3;}
     const n=x=>Math.round(A.shares[x]/100*F/40); drawSection($('a-c'),{fac:S.fac,def:{entr:n('entr'),front:n('front'),tower:n('tower')},att,fire:A.fire});}},160);

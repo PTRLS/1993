@@ -815,7 +815,7 @@ function drawScore(){const A=S.A||{units:[],air:0}; return [[S.leg>=50,'Леги
 function ending(id,exact){
   if(exact);
   else if((id==='fell'||id==='broken')&&drawScore().filter(x=>x[0]).length>=3)id='pyrrhic';
-  if(!exact&&id==='held'&&(S.rad>=70||(S.leg<35&&S.A&&S.A.air<30)))id='held_iso'; // кучка радикалов без прессы: отбились, но никто не признал
+  if(!exact&&id==='held'&&(S.rad>=70||(S.leg<35&&S.A&&S.A.air<30)||(S.A&&S.A.air<50&&(S.A.lost||0)+S.A.units.reduce((x,u)=>x+(u.lost||0),0)>=1500)))id='held_iso'; // без прессы или ценой большой крови без камер // кучка радикалов без прессы: отбились, но никто не признал
   const E={...ENDINGS[id]}; if(id==='fell')E.h=dateStr(S.day).toUpperCase(); if(S.A)S.A.card=0; $('modal').classList.remove('on');
   store.del(SAVE); store.set(CHRON,S.chron);
   S.endId=id;
