@@ -310,8 +310,8 @@ function nextHour(){
     // потери штурмующих растут с числом защитников; бьют по духу, а потеряв половину, часть выводят совсем
     const on=att.filter(u=>uEff(u)>0), tot=on.reduce((x,u)=>x+uEff(u),0)||1; let kl=0;
     for(const u of on){const U=UNITS.find(x=>x.id===u.id); const dl=Math.min(u.cur*.3,D*.13*uEff(u)/tot); u.cur=Math.max(0,u.cur-dl); u.dead=(u.dead||0)+dl; const k=Math.round(dl*9); u.lost=(u.lost||0)+k; kl+=k;
-      uMor(u,-(dl*1.0)-(Ar<=D?2:-2)); u.why=Ar<=D?'потери, вход не взят':'потери';
-      if(u.dead>=U.str*.6&&u.cur>3){u.cur=0;u.st='stopped';u.why='потеряли половину';alog(U.nm+': потеряли больше половины состава, часть отвели от здания.');}}
+      uMor(u,-(dl*1.0)-(Ar<=D?2:-2)); u.why=Ar<=D?'отбиты':'потери';
+      if(u.dead>=U.str*.6&&u.cur>3){u.cur=0;u.st='stopped';u.why='обескровлены';alog(U.nm+': потеряли больше половины состава, часть отвели от здания.');}}
     A.last[s]={D:Math.round(D),A:Math.round(Ar),lost,kl};
     const nm=SECTORS.find(x=>x.id===s).nm;
     if(Ar>0)alog(`${nm}: ${Ar>D?'теснят':'держим'}. Наши потери ${fmt(lost)}, их ${fmt(kl)}.`,Ar>D?'bad':'');}
@@ -386,9 +386,9 @@ const INCIDENTS=[
        {t:'Включить его речь на этажах: пусть слышат, что им обещано',d:'Решимость +4 · Радикализм +4',run:A=>{S.hope=clamp(S.hope+4,0,100);S.rad=clamp(S.rad+4,0,100);}}]},
   // тяни-толкай: когда часть встала или заколебалась, Ельцин один раз лично звонит её командиру. Вернуть каждую часть он может только однажды
   {id:'y_call', multi:1, prio:1, cond:A=>A.r>=1&&!!yCallUnit(A), h:'ЗВОНОК ИЗ КРЕМЛЯ', p:()=>{const u=yCallUnit(S.A),U=UNITS.find(x=>x.id===u.id);return `${U.nm}: дух ${Math.round(uMorV(u))}%, ${uState(u)==='halt'?'часть встала и не идёт на здание':'часть колеблется и идёт вполсилы'}. Ельцин лично звонит командиру: «Вы понимаете, чем кончится для вас отказ? Вперёд». Второй раз он этой части звонить не станет: либо сейчас, либо никогда.`;},
-   ch:[{t:'Не вмешиваться',d:()=>'дух части +'+yCallGain(S.A),run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;uMor(u,g);u.why='звонок Ельцина';}},
-       {t:'Выйти на их частоту: «Командир, приказ преступный, отвечать будете вы»',d:()=>'Эфир −10 · дух части только +'+Math.round(yCallGain(S.A)/3),rq:'Эфир 10',req:()=>S.A.air>=10,run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;A.air-=10;uMor(u,Math.round(g/3));u.why='звонок Ельцина, перебит эфиром';}},
-       {t:'Послать к ним депутатов-офицеров с белым флагом',d:()=>'шанс '+Math.round(yCallTalk(S.A)*100)+'%: часть уходит совсем. Иначе дух +'+yCallGain(S.A)+', Решимость −3',run:A=>{const u=yCallUnit(A),U=UNITS.find(x=>x.id===u.id),g=yCallGain(A),ok=Math.random()<yCallTalk(A);u.called=1; if(ok){u.cur=0;u.st='stopped';u.why='ушли после переговоров';alog(U.nm+': командир выслушал депутатов и увёл часть.');}else{uMor(u,g);u.why='звонок Ельцина';S.hope=clamp(S.hope-3,0,100);alog('Парламентёров не подпустили к командиру.','bad');}}}]},
+   ch:[{t:'Не вмешиваться',d:()=>'дух части +'+yCallGain(S.A),run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;u.mor0=uMorV(u);uMor(u,g);u.why='звонок Ельцина';}},
+       {t:'Выйти на их частоту: «Командир, приказ преступный, отвечать будете вы»',d:()=>'Эфир −10 · дух части только +'+Math.round(yCallGain(S.A)/3),rq:'Эфир 10',req:()=>S.A.air>=10,run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;u.mor0=uMorV(u);A.air-=10;uMor(u,Math.round(g/3));u.why='звонок перебит';}},
+       {t:'Послать к ним депутатов-офицеров с белым флагом',d:()=>'шанс '+Math.round(yCallTalk(S.A)*100)+'%: часть уходит совсем. Иначе дух +'+yCallGain(S.A)+', Решимость −3',run:A=>{const u=yCallUnit(A),U=UNITS.find(x=>x.id===u.id),g=yCallGain(A),ok=Math.random()<yCallTalk(A);u.called=1; if(ok){u.cur=0;u.st='stopped';u.why='увели часть';alog(U.nm+': командир выслушал депутатов и увёл часть.');}else{u.mor0=uMorV(u);uMor(u,g);u.why='звонок Ельцина';S.hope=clamp(S.hope-3,0,100);alog('Парламентёров не подпустили к командиру.','bad');}}}]},
   {id:'y_order', cond:A=>A.r>=4&&A.units.some(u=>u.cur>3&&u.mor<=45), h:'ПРИКАЗ ЗА ПОДПИСЬЮ', p:'Командирам частей привезли письменный приказ президента с личной подписью. Теперь отказ — это трибунал, а не колебания.',
    ch:[{t:'Ничего не сделать',d:'дух всех частей +15',run:A=>{for(const u of A.units)if(u.cur>3)uMor(u,15);}},
        {t:'Напомнить в эфире: приказ незаконен, отвечать будет исполнитель',d:'Эфир −10 · дух +5 вместо +15',rq:'Легитимность 50',req:()=>S.leg>=50&&S.A.air>=10,run:A=>{S.A.air-=10;for(const u of A.units)if(u.cur>3)uMor(u,5);}}]},
@@ -490,8 +490,9 @@ function incidentCard(){const A=S.A; if(!A||screen!=='assault')return;
   if(!I){const pool=INCIDENTS.filter(x=>!A.inc[x.id]&&x.cond(A)); if(!pool.length)return; const pr=pool.filter(x=>x.prio); I=pr.length?pr[0]:pool[Math.floor(Math.random()*pool.length)];}
   if(A.card!=='inc')Sfx.play(/^u_|^y_/.test(I.id)?'static':'alarm',1.2);
   A.card='inc'; A.incId=I.id; save();
-  $('modal-win').innerHTML=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
+  const yel=/^y_/.test(I.id), body=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
     return `<div class="law${lk?' lock':''}" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="e">${typeof c.d==='function'?c.d():c.d}${c.rq?` · <span class="${lk?'n':'p'}">${lk?'нужно':'открыто'}: ${c.rq}</span>`:''}</div></div>`;}).join('');
+  $('modal-win').innerHTML=yel?`<div class="incy"><div class="ph"><img src="${ASSET_YELTSIN}"><b>БОРИС ЕЛЬЦИН</b><small>на прямой линии</small></div><div>${body}</div></div>`:body;
   $('modal').classList.add('on');
   $('modal-win').querySelectorAll('.law').forEach(e=>e.onclick=()=>incChoose(+e.dataset.i));
 }
@@ -569,11 +570,11 @@ function renderAssault(){
   drawSection($('a-c'),{fac:S.fac,def:{entr:unitsN('entr'),front:unitsN('front'),tower:unitsN('tower')},att,fire:A.fire});
   $('a-status').innerHTML=A.log.slice(0,4).map(l=>`<div class="${l.cls}"><span class="tm">${l.h}</span> ${l.t}</div>`).join('');
   // units
-  $('a-units').innerHTML=`<h2>СИЛЫ КРЕМЛЯ <span>потери ${fmt(kDead(A))} · ваши ${fmt(A.lost||0)}</span></h2>`+A.units.map(u=>{const U=UNITS.find(x=>x.id===u.id);
+  $('a-units').innerHTML=`<h2>СИЛЫ КРЕМЛЯ <span>потери ${fmt(kDead(A))} · ваши ${fmt(A.lost||0)} · шкала: сила в бою</span></h2>`+A.units.map(u=>{const U=UNITS.find(x=>x.id===u.id);
     const st=uState(u), m=Math.round(uMorV(u)), dm=u.mor0==null?0:Math.round(m-u.mor0);
-    const on=Math.round(uEff(u)/40*10);
+    const on=Math.ceil(uEff(u)/50*8);
     const sub=u.cur<=3&&st!=='wait'?`потери ${fmt(u.lost||0)}${u.why?' · '+u.why:''}`:`потери ${fmt(u.lost||0)} · дух ${m}%`+(dm?` <span class="${dm<0?'p':'n'}">${dm<0?'▼':'▲'}${Math.abs(dm)}${u.why?' '+u.why:''}</span>`:'');
-    return `<div class="urow ${st}"><span class="nm">${U.nm}<small>${sub}</small></span><span class="stt">${STANCE_NM[st]}</span></div>`;}).join('')+'<div class="uhint">дух от 50: идут · 25–49: вполсилы · ниже 25: стоят</div>';
+    return `<div class="urow ${st}"><span class="nm">${U.nm}<small>${sub}</small></span><span class="stt">${STANCE_NM[st]}</span><div class="b r" title="сила в бою сейчас">${Array.from({length:8},(_,i)=>`<i class="${i<on?'on':''}"></i>`).join('')}</div></div>`;}).join('')+'<div class="uhint">дух от 50: идут · 25–49: вполсилы · ниже 25: стоят</div>';
   // sectors
   $('a-sect').innerHTML=`<h2>ОБОРОНА <span>сила ${fmt(F)} · патронов на ${S.mil>0?Math.floor(A.ammo/Math.max(1,Math.round(S.mil/8))):'—'} ч.</span></h2>`+SECTORS.map(s=>{const sh=A.shares[s.id];const c=A.ctl[s.id];
     const pr=s.id==='tower'?`<small class="${sh<10?'n':'p'}">${sh<10?'пусто: чужие стрелки наверху, Решимость −2/час':'снайперы: натиск на оба входа −'+Math.round(towerCut(A)*100)+'%'}</small>`:(()=>{const {D,A:a}=assaultSector(s.id);const L=A.last&&A.last[s.id];return `<small class="${a>D?'n':'p'}">оборона ${Math.round(D)} против натиска ${Math.round(a)}: ${a>D?'теснят':'держим'}${L?` · за час: мы −${fmt(L.lost)}, они −${fmt(L.kl)}`:''}</small>`;})();

@@ -23,7 +23,7 @@
 <title>1993</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/screens.css?v=1795242640">
+<link rel="stylesheet" href="css/screens.css?v=1795242849">
 <style>
   :root{
     --bg:#0b0c0f; --panel:#15161a; --panel2:#1c1d22; --line:#33312c; --line-hi:#5a5446;
@@ -246,12 +246,13 @@
   #s-assault .fac.flat{flex:none;padding:8px 12px}
   #s-assault .fac.grow{flex:1}
   #s-assault .fac h2{font-size:10px;margin-bottom:6px}
-  #s-assault .urow{display:grid;grid-template-columns:1fr 84px;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid #222227;font-size:15px}
+  #s-assault .urow{display:grid;grid-template-columns:1fr 78px 58px;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid #222227;font-size:15px}
   #s-assault .urow small,#s-assault .srow small{display:block;font-size:12px;color:var(--mute)}
   #s-assault .srow small.p{color:var(--ok)} #s-assault .srow small.n{color:var(--bad)}
   #s-assault .urow .stt{font-size:13px;color:#e0866a;text-align:right}
   #s-assault .urow.refuse .stt,#s-assault .urow.stopped .stt,#s-assault .urow.halt .stt{color:var(--ok)}
-  #s-assault .urow small span.p{color:#a9c47a} #s-assault .urow small span.n{color:#e0866a} #s-assault .uhint{font-size:11px;color:var(--mute);padding-top:2px}
+  #s-assault .urow small span.p{color:#a9c47a} #s-assault .urow small span.n{color:#e0866a} .incy{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start} .incy .ph img{width:150px;display:block;image-rendering:pixelated;border:2px solid var(--line-hi)} .incy .ph b{display:block;font-family:'Press Start 2P';font-size:8px;color:var(--paper);margin-top:6px} .incy .ph small{display:block;font-family:'Tiny5';font-size:13px;line-height:1.1;color:var(--mute);margin-top:3px}
+  #s-assault .uhint{font-size:11px;color:var(--mute);padding-top:2px}
   #s-assault .urow.waver .stt,#s-assault .urow.wait .stt{color:#c9a25a}
   #s-assault .urow.refuse .nm,#s-assault .urow.stopped .nm{opacity:.5}
   #s-assault .srow{display:grid;grid-template-columns:1fr 110px 96px;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid #222227;font-size:15px}
@@ -477,14 +478,14 @@
   <div class="modal" id="modal"><div class="win" id="modal-win"></div></div>
 </div>
 
-<script src="js/assets.js?v=1795242640"></script>
-<script src="js/faces.js?v=1795242640"></script>
-<script src="js/title.js?v=1795242640"></script>
-<script src="js/map.js?v=1795242640"></script>
-<script src="music/music.js?v=1795242640" onerror="this.remove()"></script>
-<script src="js/data.js?v=1795242640"></script>
-<script src="js/interior.js?v=1795242640"></script>
-<script src="js/game.js?v=1795242640"></script>
+<script src="js/assets.js?v=1795242849"></script>
+<script src="js/faces.js?v=1795242849"></script>
+<script src="js/title.js?v=1795242849"></script>
+<script src="js/map.js?v=1795242849"></script>
+<script src="music/music.js?v=1795242849" onerror="this.remove()"></script>
+<script src="js/data.js?v=1795242849"></script>
+<script src="js/interior.js?v=1795242849"></script>
+<script src="js/game.js?v=1795242849"></script>
 <script>document.querySelectorAll('.sndb').forEach(b=>b.onclick=e=>{e.stopPropagation();Music.toggle();});$('s-intro').onclick=()=>introNext(false);Music.sync();</script>
 </body>
 </html>
