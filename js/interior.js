@@ -431,7 +431,7 @@ const INCIDENTS=[
    ch:[{t:'Промолчать',d:'танки −10%',run:A=>uMul(A,'tanks',.9)},
        {t:'Гарантии от имени Верховного Совета: отказавшихся не тронут',d:'танки −35%',rq:'Легитимность 60',req:()=>S.leg>=60,run:A=>uMul(A,'tanks',.65)},
        {t:'Звать к себе: разверните орудие',d:'танк встаёт у парадного входа: вход +15 · Радикализм +5 · Эфир −10',rq:'Минобороны 55',req:()=>S.pts.mo>=55,run:A=>{uMul(A,'tanks',.75);A.ctl.front=Math.min(100,A.ctl.front+15);S.rad=clamp(S.rad+5,0,100);A.air=Math.max(0,A.air-10);}}]},
-  {id:'u_paid', cond:A=>uOn(A,'tanks')&&S.pts.mo<50&&A.r>=1, h:'ЭКИПАЖИ ЗА ДЕНЬГИ', p:'Срочники стрелять отказались. В танки сажают офицеров-добровольцев: каждому обещаны деньги и квартира. Наводчики опытные.',
+  {id:'u_paid', pic:'tank', cond:A=>uOn(A,'tanks')&&S.pts.mo<50&&A.r>=1, h:'ЭКИПАЖИ ЗА ДЕНЬГИ', p:'Срочники стрелять отказались. В танки сажают офицеров-добровольцев: каждому обещаны деньги и квартира. Наводчики опытные.',
    ch:[{t:'Ничего не сделать',d:'танки +25%',run:A=>uMul(A,'tanks',1.25)},
        {t:'Назвать в эфире фамилии и цену',d:'Эфир +2 · танки +5%',rq:'Эфир 8',req:()=>S.A.air>=8,run:A=>{S.A.air-=8;uMul(A,'tanks',1.05);A.air=Math.min(100,A.air+10);}},
        {t:'Звонок командиру дивизии: снимите добровольцев',d:'танки −15%',rq:'Минобороны 40',req:()=>S.pts.mo>=40&&!S.flags.noComms,run:A=>uMul(A,'tanks',.85)}]},
@@ -483,7 +483,7 @@ const INCIDENTS=[
    ch:[{t:'Согласиться',d:'Люди −300 · раненые вывезены · Решимость −3',run:A=>{S.ppl=Math.max(0,S.ppl-300);A.wnd=0;S.hope=clamp(S.hope-3,0,100);}},
        {t:'Требовать посредников: патриарх, суд, регионы',d:'Эфир +15 · натиск слабеет',rq:'Легитимность 70',req:()=>S.leg>=70,run:A=>{A.air=Math.min(100,A.air+15);for(const u of A.units)u.cur*=.9;}},
        {t:'Отказаться',d:'Решимость +3',run:A=>{S.hope=clamp(S.hope+3,0,100);}}]},
-  {id:'hall', cond:A=>A.units.find(u=>u.id==='tanks').cur>0, h:'СНАРЯД В ЗАЛЕ', p:'Болванка прошила стену зала заседаний. Депутаты лежат между кресел. Кто-то предлагает спуститься в подвал.',
+  {id:'hall', pic:'tank', cond:A=>A.units.find(u=>u.id==='tanks').cur>0, h:'СНАРЯД В ЗАЛЕ', p:'Болванка прошила стену зала заседаний. Депутаты лежат между кресел. Кто-то предлагает спуститься в подвал.',
    ch:[{t:'Всем в подвал',d:'Решимость −4',run:A=>{S.hope=clamp(S.hope-4,0,100);}},
        {t:'Продолжить заседание',d:'Решимость +5 · Эфир +10 · уйдут 10 депутатов',rq:'Решимость 50%',req:()=>S.hope>=50,run:A=>{S.hope=clamp(S.hope+5,0,100);A.air=Math.min(100,A.air+10);S.fac.kol.n=Math.max(0,S.fac.kol.n-10);}}]},
   {id:'ammo', cond:A=>A.r>=1, h:'ПАТРОНЫ', p:'У подъездов осталось по рожку на ствол. Командиры спрашивают, где брать ещё.',
@@ -524,9 +524,9 @@ function incidentCard(){const A=S.A; if(!A||screen!=='assault')return;
   if(!I){const pool=INCIDENTS.filter(x=>!A.inc[x.id]&&x.cond(A)); if(!pool.length)return; const pr=pool.filter(x=>x.prio); I=pr.length?pr[0]:pool[Math.floor(Math.random()*pool.length)];}
   if(A.card!=='inc')Sfx.play(/^u_|^y_/.test(I.id)?'static':'alarm',1.2);
   A.card='inc'; A.incId=I.id; save();
-  const who=/^y_/.test(I.id)?'yeltsin':I.who, yel=!!who, body=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
+  const tk=I.pic==='tank'&&uOn(A,'tanks'), who=/^y_/.test(I.id)?'yeltsin':I.who, yel=!!who||tk, body=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
     return `<div class="law${lk?' lock':''}" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="e">${typeof c.d==='function'?c.d():c.d}${c.rq?` · <span class="${lk?'n':'p'}">${lk?'нужно':'открыто'}: ${c.rq}</span>`:''}</div></div>`;}).join('');
-  $('modal-win').innerHTML=yel?`<div class="incy"><div class="ph"><img src="${who==='yeltsin'?ASSET_YELTSIN:PEOPLE[who].img}"><b>${who==='yeltsin'?'БОРИС ЕЛЬЦИН':PEOPLE[who].nm.toUpperCase()}</b><small>${who==='yeltsin'?'на прямой линии':PEOPLE[who].role+', на прямой линии'}</small></div><div>${body}</div></div>`:body;
+  $('modal-win').innerHTML=tk?`<div class="incy"><div class="ph"><img src="${tankShotURL()}"><b>НОВОАРБАТСКИЙ МОСТ</b><small>танки бьют по зданию</small></div><div>${body}</div></div>`:yel?`<div class="incy"><div class="ph"><img src="${who==='yeltsin'?ASSET_YELTSIN:PEOPLE[who].img}"><b>${who==='yeltsin'?'БОРИС ЕЛЬЦИН':PEOPLE[who].nm.toUpperCase()}</b><small>${who==='yeltsin'?'на прямой линии':PEOPLE[who].role+', на прямой линии'}</small></div><div>${body}</div></div>`:body;
   $('modal').classList.add('on');
   $('modal-win').querySelectorAll('.law').forEach(e=>e.onclick=()=>incChoose(+e.dataset.i));
 }
