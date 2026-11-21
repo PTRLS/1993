@@ -497,7 +497,7 @@ $('b-laws').onclick=()=>openLaws();
 $('b-end').onclick=()=>endTurn();
 $('b-wh').onclick=()=>setView('wh');
 $('b-ether').onclick=()=>openEther();
-document.querySelectorAll('#s-wh .tabs div').forEach(d=>d.onclick=()=>{const t=d.dataset.t;
+document.querySelectorAll('#s-wh .tabs div').forEach(d=>d.onclick=()=>{const t=d.dataset.t; if(t==='menu')return toMenu();
   if(t==='map')setView('map');else if(t==='ether')openEther();else if(t==='laws')openLaws();else if(t==='end')endTurn();});
 $('a-next').onclick=()=>nextHour();
 
@@ -1297,7 +1297,8 @@ function fit(){const d=document.documentElement,s=Math.min(d.clientWidth/1280,d.
 addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,200));fit();
 // ---------- выход в главное меню с карты, из Белого дома и со штурма: партия сохраняется, «Продолжить» вернёт туда же ----------
 function toMenu(){ if(S&&!S.endId)save(); $('modal').classList.remove('on'); show('title'); renderMenu(); }
-[...document.querySelectorAll('#s-map .hud .box.day,#s-wh .hud .box.day'),$('snd2').parentNode].forEach(b=>{const d=document.createElement('div');d.className='menub px';d.textContent='МЕНЮ';d.title='В главное меню. Партия сохранится';if(b.contains($('snd2')))d.style.cssText='right:132px;top:10px;font-size:8px;padding:6px 8px;z-index:3';d.onclick=e=>{e.stopPropagation();toMenu();};b.appendChild(d);});
+$('b-menu').onclick=()=>toMenu();
+[$('snd2').parentNode].forEach(b=>{const d=document.createElement('div');d.className='menub px';d.textContent='МЕНЮ';d.title='В главное меню. Партия сохранится';if(b.contains($('snd2')))d.style.cssText='right:132px;top:10px;font-size:8px;padding:6px 8px;z-index:3';d.onclick=e=>{e.stopPropagation();toMenu();};b.appendChild(d);});
 // ---------- полный экран: кнопка видна только там, где браузер его даёт (на iPhone его нет — там игра ставится на экран «Домой») ----------
 const FS={ el:()=>document.documentElement, can(){const e=this.el();return !!((document.fullscreenEnabled||document.webkitFullscreenEnabled)&&(e.requestFullscreen||e.webkitRequestFullscreen));},
   on:()=>!!(document.fullscreenElement||document.webkitFullscreenElement),

@@ -27,7 +27,7 @@
 <title>1993</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/screens.css?v=1795255656">
+<link rel="stylesheet" href="css/screens.css?v=1795255939">
 <style>
   :root{
     --bg:#0b0c0f; --panel:#15161a; --panel2:#1c1d22; --line:#33312c; --line-hi:#5a5446;
@@ -97,7 +97,7 @@
   .odet{background:var(--panel2);border:2px solid var(--line);padding:8px 10px} .odet .oh b{font-size:17px;color:var(--paper)} .odet .oh span{font-size:13px;color:var(--dim)} .odet .oa{font-size:14px;line-height:15px;color:var(--dim);margin:4px 0} .odet .oa b{color:var(--paper);font-weight:400} .odet .law{margin:5px 0 0}
   .app2.a3{grid-template-columns:1fr 1fr 1fr}
   #s-map .tag.btn{cursor:pointer;pointer-events:auto;border-color:var(--fire)} #s-map .tag.btn:hover{background:#3a2c14}
-  .hud .box.day{position:relative} .menub{position:absolute;right:4px;top:4px;font-size:7px;line-height:1;color:var(--paper);background:rgba(10,10,12,.7);border:2px solid var(--line-hi);padding:4px 5px;cursor:pointer} .menub:hover{border-color:var(--fire)} .menub::after{content:'';position:absolute;left:-14px;right:-6px;top:-6px;bottom:-16px}
+  .menub{position:absolute;right:4px;top:4px;font-size:7px;line-height:1;color:var(--paper);background:rgba(10,10,12,.7);border:2px solid var(--line-hi);padding:4px 5px;cursor:pointer} .menub:hover{border-color:var(--fire)} .menub::after{content:'';position:absolute;left:-14px;right:-6px;top:-6px;bottom:-16px}
   .fsb{position:absolute;right:28px;top:62px;font-size:10px;color:var(--paper);background:rgba(10,10,12,.7);border:2px solid var(--line-hi);padding:8px 10px;cursor:pointer;pointer-events:auto} .fsb:hover{border-color:var(--fire)}
   .sndb{position:absolute;right:28px;top:24px;font-size:10px;color:var(--paper);background:rgba(10,10,12,.7);border:2px solid var(--line-hi);padding:8px 10px;cursor:pointer;pointer-events:auto} .sndb.off{color:var(--dim)} .sndb:hover{border-color:var(--fire)}
   #s-intro{background:#07070a;cursor:pointer;overflow:hidden}
@@ -189,7 +189,7 @@
   #s-map .res .r .dlt{font-size:14px}
   .res .r.click{cursor:pointer}
   .res .r.click:hover{background:#1c1d22}
-  #s-map .btn.tab{width:150px}
+  #s-map .btn.tab{width:150px} #s-map .btn.tab.menu{width:112px}
   #s-map .btn.laws{width:190px}
   #s-map .btn.end{width:176px}
   .toast .nt{font-size:14px;color:var(--dim);margin-top:6px}
@@ -412,6 +412,7 @@
 
     <div class="bottom">
       <div class="box log" id="log"></div>
+      <div class="box btn tab menu" id="b-menu"><span>МЕНЮ</span><small>ESC · выйти</small></div>
       <div class="box btn tab" id="b-wh"><span>БЕЛЫЙ ДОМ</span><small>TAB · фракции</small></div>
       <div class="box btn tab" id="b-ether"><span>ЭФИР</span><small>M · обращения</small></div>
       <div class="box btn laws" id="b-laws"><span>ПОСТАНОВЛЕНИЯ</span><small><span class="dot">●</span> <span id="laws-n">доступно: 1</span></small></div>
@@ -427,7 +428,7 @@
       <div class="box day"><div class="n px" id="w-day"></div><div class="d px" id="w-date"></div><div class="w" id="w-wd"></div></div>
       <div class="box res" id="w-res"></div>
     </div>
-    <div class="tabs"><div data-t="map">КАРТА</div><div class="on">БЕЛЫЙ ДОМ</div><div data-t="ether">ЭФИР</div><div data-t="laws">ПОСТАНОВЛЕНИЯ</div><div data-t="end" class="endt">ЗАВЕРШИТЬ ХОД · <span id="w-orders"></span></div></div>
+    <div class="tabs"><div data-t="menu">МЕНЮ</div><div data-t="map">КАРТА</div><div class="on">БЕЛЫЙ ДОМ</div><div data-t="ether">ЭФИР</div><div data-t="laws">ПОСТАНОВЛЕНИЯ</div><div data-t="end" class="endt">ЗАВЕРШИТЬ ХОД · <span id="w-orders"></span></div></div>
     <div class="box sec" id="w-sec">
       <canvas id="w-c" width="380" height="296"></canvas>
       <div class="status" id="w-status"></div>
@@ -504,15 +505,15 @@
   <div class="modal" id="modal"><div class="win" id="modal-win"></div></div>
 </div>
 
-<script src="js/assets.js?v=1795255656"></script>
-<script src="js/faces.js?v=1795255656"></script>
-<script src="js/title.js?v=1795255656"></script>
-<script src="js/map.js?v=1795255656"></script>
-<script src="music/music.js?v=1795255656" onerror="this.remove()"></script>
-<script src="js/data.js?v=1795255656"></script>
-<script src="js/interior.js?v=1795255656"></script>
-<script src="js/game.js?v=1795255656"></script>
-<script src="js/ach.js?v=1795255656"></script>
+<script src="js/assets.js?v=1795255939"></script>
+<script src="js/faces.js?v=1795255939"></script>
+<script src="js/title.js?v=1795255939"></script>
+<script src="js/map.js?v=1795255939"></script>
+<script src="music/music.js?v=1795255939" onerror="this.remove()"></script>
+<script src="js/data.js?v=1795255939"></script>
+<script src="js/interior.js?v=1795255939"></script>
+<script src="js/game.js?v=1795255939"></script>
+<script src="js/ach.js?v=1795255939"></script>
 <script>document.querySelectorAll('.sndb').forEach(b=>b.onclick=e=>{e.stopPropagation();Music.toggle();});$('s-intro').onclick=()=>introNext(false);Music.sync();</script>
 </body>
 </html>
