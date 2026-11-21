@@ -25,8 +25,8 @@ const ACH=[
 ];
 const achGot=()=>store.get(ACH_KEY)||{};
 const achStats=()=>store.get(STATS_KEY)||{games:0,assaults:0,ends:{}};
-function achGive(id){ if(!S||S.cheat)return; const g=achGot(); if(g[id])return; g[id]=Date.now(); store.set(ACH_KEY,g); stat('ach-'+id,1); achToast(id);
-  if(id!=='kashin'&&ACH.every(a=>a.id==='kashin'||g[a.id]))achGive('kashin'); }
+function achGive(id){ if(!S||S.cheat)return; const g=achGot(); if(g[id]&&g[id]!=='cheat')return; g[id]=Date.now(); store.set(ACH_KEY,g); stat('ach-'+id,1); achToast(id);
+  if(id!=='kashin'&&ACH.every(a=>a.id==='kashin'||(g[a.id]&&g[a.id]!=='cheat')))achGive('kashin'); }
 let achQ=[],achBusy=0;
 function achToast(id){achQ.push(id); if(!achBusy)achNext();}
 function achNext(){const id=achQ.shift(), el=$('ach-toast'); if(!id){achBusy=0;el.classList.remove('on');return;} achBusy=1; const a=ACH.find(x=>x.id===id);
@@ -91,13 +91,16 @@ async function achNetFill(){ if(!/^https?:/.test(location.protocol)||achNetOn===
     const els=[...document.querySelectorAll('#modal-win [data-net]')];
     await Promise.all(els.map(async el=>{try{const n=await achCount(el.dataset.net); el.textContent=(n/total*100<1&&n>0?'<1':Math.round(n/total*100))+'%';}catch(e){}}));
   }catch(e){achNetOn=false;} }
-function openAch(){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('full');
+function openAch(ch){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('full');
   const tiers={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])tiers[endTier(id)]+=st.ends[id];
   const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id):'???'}${c?' ×'+c:''} <i data-net="${endEvName(id)}"></i></span>`;}).join('');
   win.innerHTML=`<div class="close xtop">✕ ЗАКРЫТЬ</div><h2>ДОСТИЖЕНИЯ · ${n} ИЗ ${ACH.length}</h2><div class="sub" id="ach-net">Достижения хранятся в этом браузере. В партиях с читами они не выдаются.</div>
    <div class="achg">`+ACH.map(a=>`<div class="ach${g[a.id]?' on':''}"><canvas width="64" height="64" data-a="${a.id}"></canvas><div><b>${a.nm}</b><span>${a.d}</span></div><i data-net="ach-${a.id}"></i></div>`).join('')+`</div>
    <h3 class="achh">ВАША СТАТИСТИКА</h3><div class="achs">Партий: <b>${st.games||0}</b> · дошли до штурма: <b>${st.assaults||0}</b> · побед: <b class="p">${tiers.win}</b> · нейтральных: <b>${tiers.neu}</b> · поражений: <b class="n">${tiers.lose}</b></div>
-   <div class="aes">${ends}</div>`;
+   <div class="aes">${ends}</div>`+((ch||cheatOn())?`<div class="achc"><b>ЧИТ:</b> <u data-c="all">открыть все</u> <u data-c="none">сбросить</u> <u data-c="toast">показать плашку</u> <span>открытое читом в общую статистику не идёт</span></div>`:'');
+  win.querySelectorAll('.achc u').forEach(u=>u.onclick=()=>{const c=u.dataset.c; if(c==='toast'){achToast(ACH[Math.floor(Math.random()*ACH.length)].id);return;}
+    const g2=achGot(); if(c==='all'){for(const a of ACH)if(!g2[a.id])g2[a.id]='cheat';} else {for(const k in g2)if(g2[k]==='cheat')delete g2[k]; if(u.dataset.sure){store.set(ACH_KEY,{});openAch(1);return;} }
+    store.set(ACH_KEY,g2); openAch(1); if(c==='none'){const b=document.querySelector('.achc u[data-c="none"]'); if(Object.keys(g2).length){b.textContent='сбросить и настоящие ('+Object.keys(g2).length+')';b.dataset.sure=1;}}});
   win.querySelectorAll('canvas[data-a]').forEach(c=>achIcon(c,c.dataset.a,!!g[c.dataset.a]));
   $('modal').classList.add('on'); win.querySelector('.close').onclick=closeModal; achNetFill();
 }
