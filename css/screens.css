@@ -4,7 +4,8 @@
 #s-title canvas{position:absolute;inset:0;width:1280px;height:720px;image-rendering:pixelated;image-rendering:crisp-edges;}
 #s-title .ui{position:absolute;inset:0;font-family:"Tiny5","Press Start 2P",monospace;color:var(--paper);pointer-events:none;}
 #s-title .logo{position:absolute;left:64px;top:56px;}
-#s-title .logo h1{margin:0;font-family:"Press Start 2P",monospace;font-size:112px;line-height:1;letter-spacing:6px;color:var(--paper);
+@font-face{font-family:'Logo1993';src:url(https://fonts.gstatic.com/s/pressstart2p/v16/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2) format('woff2');font-display:swap}
+#s-title .logo h1{margin:0;font-family:"Logo1993","Press Start 2P",monospace;font-size:112px;line-height:1;letter-spacing:6px;color:var(--paper);
     text-shadow:8px 8px 0 #5a1712, 0 0 0 #000;}
 #s-title .logo .sub{margin-top:22px;font-family:"Press Start 2P",monospace;font-size:14px;letter-spacing:3px;color:var(--fire);}
 #s-title .logo .sub2{margin-top:10px;font-size:20px;color:var(--paper-dim);letter-spacing:1px;}

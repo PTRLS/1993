@@ -1307,6 +1307,13 @@ const FS={ el:()=>document.documentElement, can(){const e=this.el();return !!((d
       const e=this.el(), r=(e.requestFullscreen||e.webkitRequestFullscreen).call(e); const lock=()=>{try{const o=window.screen.orientation; if(o&&o.lock)o.lock('landscape').catch(()=>{});}catch(x){}}; if(r&&r.then)r.then(lock).catch(()=>{}); else lock(); }catch(x){} } };
 document.addEventListener('fullscreenchange',()=>FS.sync());document.addEventListener('webkitfullscreenchange',()=>FS.sync());
 {const b=$('fsb'); if(b)b.onclick=e=>{e.stopPropagation();FS.toggle();}; FS.sync();}
+// ---------- шрифт: пиксельный по умолчанию, обычные подменяют те же два семейства (ширина подогнана, вёрстка не едет) ----------
+const Font={ list:[['pix','ПИКСЕЛЬНЫЙ'],['sans','ОБЫЧНЫЙ'],['serif','С ЗАСЕЧКАМИ']],
+  cur(){const k=(store.get(OPTS)||{}).font; return this.list.some(x=>x[0]===k)?k:'pix';},
+  apply(){const k=this.cur(); let st=$('font-css'); if(!st){st=document.createElement('style');st.id='font-css';document.head.appendChild(st);} st.textContent=(typeof FONT_FACES!=='undefined'&&FONT_FACES[k])||''; document.documentElement.dataset.font=k;
+    const b=$('fntb'); if(b){b.textContent='Аа ШРИФТ: '+this.list.find(x=>x[0]===k)[1]; b.style.top=(FS.can()?100:62)+'px';} },
+  next(){const o=store.get(OPTS)||{}, i=this.list.findIndex(x=>x[0]===this.cur()); o.font=this.list[(i+1)%this.list.length][0]; store.set(OPTS,o); this.apply();} };
+{const b=$('fntb'); if(b)b.onclick=e=>{e.stopPropagation();Font.next();}; Font.apply();}
 drawMap(); applyOpts(); renderMenu(); show('title');
 
 (function(){const v=document.getElementById('ver');if(v)v.textContent='версия '+VERSION;})();

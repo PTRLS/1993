@@ -27,7 +27,7 @@
 <title>1993</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/screens.css?v=1795255939">
+<link rel="stylesheet" href="css/screens.css?v=1795287084">
 <style>
   :root{
     --bg:#0b0c0f; --panel:#15161a; --panel2:#1c1d22; --line:#33312c; --line-hi:#5a5446;
@@ -361,6 +361,7 @@
       <div id="author" style="position:absolute;right:28px;bottom:44px;font-size:16px;color:#8a8170"></div>
       <div id="snd" class="px sndb"></div>
       <div id="fsb" class="px fsb" style="display:none"></div>
+      <div id="fntb" class="px fsb" style="top:100px"></div>
     </div>
     <div class="scan"></div>
   </div>
@@ -505,15 +506,15 @@
   <div class="modal" id="modal"><div class="win" id="modal-win"></div></div>
 </div>
 
-<script src="js/assets.js?v=1795255939"></script>
-<script src="js/faces.js?v=1795255939"></script>
-<script src="js/title.js?v=1795255939"></script>
-<script src="js/map.js?v=1795255939"></script>
-<script src="music/music.js?v=1795255939" onerror="this.remove()"></script>
-<script src="js/data.js?v=1795255939"></script>
-<script src="js/interior.js?v=1795255939"></script>
-<script src="js/game.js?v=1795255939"></script>
-<script src="js/ach.js?v=1795255939"></script>
+<script src="js/assets.js?v=1795287084"></script>
+<script src="js/faces.js?v=1795287084"></script>
+<script src="js/title.js?v=1795287084"></script>
+<script src="js/map.js?v=1795287084"></script>
+<script src="music/music.js?v=1795287084" onerror="this.remove()"></script>
+<script src="js/data.js?v=1795287084"></script>
+<script src="js/interior.js?v=1795287084"></script>
+<script src="js/game.js?v=1795287084"></script>
+<script src="js/ach.js?v=1795287084"></script>
 <script>document.querySelectorAll('.sndb').forEach(b=>b.onclick=e=>{e.stopPropagation();Music.toggle();});$('s-intro').onclick=()=>introNext(false);Music.sync();</script>
 </body>
 </html>
