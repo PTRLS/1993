@@ -2,7 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="1993">
 <meta name="description" content="Пошаговая пиксельная игра про осень 1993 года. Вы — Верховный Совет: удержите Белый дом. Играется прямо в браузере.">
 <meta name="theme-color" content="#07070a">
 <meta name="author" content="Лосев Пётр">
@@ -23,7 +27,7 @@
 <title>1993</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/screens.css?v=1795254187">
+<link rel="stylesheet" href="css/screens.css?v=1795255134">
 <style>
   :root{
     --bg:#0b0c0f; --panel:#15161a; --panel2:#1c1d22; --line:#33312c; --line-hi:#5a5446;
@@ -93,6 +97,7 @@
   .odet{background:var(--panel2);border:2px solid var(--line);padding:8px 10px} .odet .oh b{font-size:17px;color:var(--paper)} .odet .oh span{font-size:13px;color:var(--dim)} .odet .oa{font-size:14px;line-height:15px;color:var(--dim);margin:4px 0} .odet .oa b{color:var(--paper);font-weight:400} .odet .law{margin:5px 0 0}
   .app2.a3{grid-template-columns:1fr 1fr 1fr}
   #s-map .tag.btn{cursor:pointer;pointer-events:auto;border-color:var(--fire)} #s-map .tag.btn:hover{background:#3a2c14}
+  .fsb{position:absolute;right:28px;top:62px;font-size:10px;color:var(--paper);background:rgba(10,10,12,.7);border:2px solid var(--line-hi);padding:8px 10px;cursor:pointer;pointer-events:auto} .fsb:hover{border-color:var(--fire)}
   .sndb{position:absolute;right:28px;top:24px;font-size:10px;color:var(--paper);background:rgba(10,10,12,.7);border:2px solid var(--line-hi);padding:8px 10px;cursor:pointer;pointer-events:auto} .sndb.off{color:var(--dim)} .sndb:hover{border-color:var(--fire)}
   #s-intro{background:#07070a;cursor:pointer;overflow:hidden}
   #s-intro canvas{position:absolute;inset:0;width:1280px;height:720px;image-rendering:pixelated;animation:inzoom 16s linear both}
@@ -354,6 +359,7 @@
       <div id="ver" style="position:absolute;left:8px;bottom:0;padding:20px;font-size:16px;color:#6e6658"></div>
       <div id="author" style="position:absolute;right:28px;bottom:44px;font-size:16px;color:#8a8170"></div>
       <div id="snd" class="px sndb"></div>
+      <div id="fsb" class="px fsb" style="display:none"></div>
     </div>
     <div class="scan"></div>
   </div>
@@ -497,15 +503,15 @@
   <div class="modal" id="modal"><div class="win" id="modal-win"></div></div>
 </div>
 
-<script src="js/assets.js?v=1795254187"></script>
-<script src="js/faces.js?v=1795254187"></script>
-<script src="js/title.js?v=1795254187"></script>
-<script src="js/map.js?v=1795254187"></script>
-<script src="music/music.js?v=1795254187" onerror="this.remove()"></script>
-<script src="js/data.js?v=1795254187"></script>
-<script src="js/interior.js?v=1795254187"></script>
-<script src="js/game.js?v=1795254187"></script>
-<script src="js/ach.js?v=1795254187"></script>
+<script src="js/assets.js?v=1795255134"></script>
+<script src="js/faces.js?v=1795255134"></script>
+<script src="js/title.js?v=1795255134"></script>
+<script src="js/map.js?v=1795255134"></script>
+<script src="music/music.js?v=1795255134" onerror="this.remove()"></script>
+<script src="js/data.js?v=1795255134"></script>
+<script src="js/interior.js?v=1795255134"></script>
+<script src="js/game.js?v=1795255134"></script>
+<script src="js/ach.js?v=1795255134"></script>
 <script>document.querySelectorAll('.sndb').forEach(b=>b.onclick=e=>{e.stopPropagation();Music.toggle();});$('s-intro').onclick=()=>introNext(false);Music.sync();</script>
 </body>
 </html>
