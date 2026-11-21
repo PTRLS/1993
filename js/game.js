@@ -827,7 +827,7 @@ function drawOstankino(c){
 }
 // ===== заставка «Танки бьют по Белому дому»: Новоарбатский мост, выстрел, попадание в верхние этажи. Фон — утверждённый рисунок горящего Белого дома =====
 function drawTankShot(c){
-  const W=320,H=360; c.drawImage(TitleArt.burning,292,0,W,H,0,0,W,H);
+  const W=320,H=360; c.drawImage(TitleArt.calm,292,0,W,H,0,0,W,H);
   const im=c.getImageData(0,0,W,H), D=im.data;
   let seed=4101993; const rnd=()=>{seed=(seed*1664525+1013904223)>>>0; return seed/4294967296;};
   const hash=(x,y)=>{let h=((x|0)*374761393+(y|0)*668265263)>>>0; h=((h^(h>>>13))*1274126177)>>>0; return ((h^(h>>>16))>>>0)/4294967296;};
@@ -840,27 +840,26 @@ function drawTankShot(c){
   const fbm=(x,y)=>noise(x,y)*.55+noise(x*2.1,y*2.1)*.3+noise(x*4.3,y*4.3)*.15;
   const glow=(cx,cy,rad,r,g,b,k)=>{for(let y=-rad;y<=rad;y++)for(let x=-rad;x<=rad;x++){const d=Math.sqrt(x*x+y*y)/rad; if(d>=1)continue; const v=(1-d)*(1-d); if(v>bay(cx+x,cy+y)*.9)add(cx+x,cy+y,r,g,b,k*(.35+v*.65));}};
   const blob=(cx,cy,rx,ry,pal,sx,sy,thr)=>{for(let y=-ry;y<=ry;y++)for(let x=-rx;x<=rx;x++){const d=Math.hypot(x/rx,y/ry), n=fbm((cx+x)*sx+5,(cy+y)*sy+9), v=1-d+(n-.5)*.9; if(v>thr+bay(cx+x,cy+y)*.12){const k=Math.min(pal.length-1,((v-thr)*pal.length*1.5)|0); P(cx+x,cy+y,pal[k]);}}};
+  const deck=x=>320-x*.05, S2=1.4, TXo=190, TY=(deck(250)|0)-1, LX=x=>TXo+x*S2, LY=y=>TY-y*S2;
+  const BX=LX(33), BY=LY(30), AN=35*Math.PI/180, MX=BX-Math.cos(AN)*100, MY=BY-Math.sin(AN)*100, HX=Math.round(MX-Math.cos(AN)*112), HY=Math.round(MY-Math.sin(AN)*112);
   // --- попадание: копоть на верхних этажах, шар разрыва, обломки, столб дыма
-  const HX=84, HY=124;
-  for(let y=-34;y<=30;y++)for(let x=-52;x<=46;x++){const d=Math.hypot(x/52,y/32), n=fbm((HX+x)*.09,(HY+y)*.11); const v=1-d+(n-.5)*.7; if(v>.12){const k=Math.max(.28,1-v*1.15); if(bay(HX+x,HY+y)<Math.min(1,v*2.4))dark(HX+x,HY+y,k);}}
-  blob(HX+2,HY-52,26,38,[[30,28,32],[44,40,44],[62,56,58],[84,74,72]],.06,.045,.30);
-  blob(HX-14,HY-92,34,26,[[26,25,30],[38,36,40],[54,50,54]],.05,.05,.34);
-  blob(HX,HY-6,19,15,[[120,44,24],[196,84,30],[244,150,54],[255,214,120],[255,246,214]],.22,.22,.22);
-  glow(HX,HY-6,40,160,84,26,.6);
-  for(let i=0;i<46;i++){const a=rnd()*6.283, r=14+rnd()*30, x=HX+Math.cos(a)*r*1.2, y=HY-6+Math.sin(a)*r*.9-rnd()*10, t=rnd(); P(x,y,t>.6?[255,196,96]:t>.3?[214,208,196]:[40,36,36]); if(t>.8)P(x+1,y,[255,236,170]);}
+  for(let y=-30;y<=16;y++)for(let x=-30;x<=30;x++){const d=Math.hypot(x/30,(y+8)/22), n=fbm((HX+x)*.09,(HY+y)*.11); const v=1-d+(n-.5)*.7; if(v>.12){const k=Math.max(.28,1-v*1.15); if(bay(HX+x,HY+y)<Math.min(1,v*2.4))dark(HX+x,HY+y,k);}}
+  blob(HX+5,HY-44,20,36,[[34,32,36],[48,44,48],[66,60,62],[88,78,76]],.06,.045,.16);
+  blob(HX+18,HY-86,28,22,[[30,29,34],[42,40,44],[58,54,58]],.05,.05,.20);
+  blob(HX,HY-4,15,12,[[120,44,24],[196,84,30],[244,150,54],[255,214,120],[255,246,214]],.22,.22,.22);
+  glow(HX,HY-4,30,160,84,26,.6);
+  for(const [fx,fy] of [[HX+17,HY+9],[HX-13,HY+13]]){R(fx,fy,3,4,[236,120,40]);R(fx,fy+1,2,3,[255,208,110]);P(fx+1,fy-1,[250,160,60]);P(fx+1,fy-2,[200,90,36]);glow(fx+1,fy+1,7,150,70,20,.6);}
+  for(let i=0;i<34;i++){const a=rnd()*6.283, r=10+rnd()*22, x=HX+Math.cos(a)*r*1.2, y=HY-6+Math.sin(a)*r*.9-rnd()*10, t=rnd(); P(x,y,t>.6?[255,196,96]:t>.3?[214,208,196]:[40,36,36]); if(t>.8)P(x+1,y,[255,236,170]);}
   for(let i=0;i<14;i++){const x=HX-30+rnd()*60, y0=HY+8+rnd()*10, len=6+rnd()*22; for(let j=0;j<len;j++)if(hash(x,y0+j)>.35)P(x+((j/7)|0)%2,y0+j,[206,200,188]);}
   // --- настил моста на переднем плане и перила у дальнего края
-  const deck=x=>320-x*.05;
   for(let x=0;x<W;x++){ const d=deck(x)|0; for(let y=d;y<H;y++){const n=hash(x,y), v=(y-d)/(H-d); let col=n>.94?[40,40,46]:n<.1?[12,13,16]:[22,23,28]; if(y-d<2)col=[70,70,76]; else if(bay(x,y)<v*.4)col=[15,16,20]; P(x,y,col);}
     const ry=d-13; P(x,ry,[82,84,92]);P(x,ry+1,[30,31,38]); P(x,ry+6,[54,56,64]); if(x%13===4){for(let y=ry;y<d;y++){P(x,y,[74,76,84]);P(x+1,y,[34,35,42]);}} }
   for(let x=0;x<W;x+=1)if(((x+6)/18|0)%2)P(x,346-(x*.05|0),[70,68,62]);
   // фонарь моста
   {const x=22,d=deck(x)|0; R(x,d-78,2,78,[52,54,62]); R(x-8,d-78,18,2,[52,54,62]); R(x-9,d-76,4,2,[30,31,38]);R(x+7,d-76,4,2,[30,31,38]);}
   // --- танк Т-80 на мосту крупным планом, ствол поднят на здание
-  const S2=1.6, TXo=126, TY=(deck(220)|0)-1; // TY — низ гусениц
   const OL=[[112,122,86],[82,92,62],[60,70,47],[42,50,35],[26,31,24]];
   const LR=(x,yt,w,h,col)=>R(Math.round(TXo+x*S2),Math.round(TY-yt*S2),Math.ceil(w*S2),Math.ceil(h*S2),col);
-  const LX=x=>TXo+x*S2, LY=y=>TY-y*S2;
   const line=(x1,y1,x2,y2,th,col,hi,lo)=>{const n=Math.max(Math.abs(x2-x1),Math.abs(y2-y1))*2; for(let i=0;i<=n;i++){const t=i/n,x=x1+(x2-x1)*t,y=y1+(y2-y1)*t; for(let k=0;k<th;k++)P(x,y+k,k===0?hi:k>=th-1?lo:k<th*.45?mixc(hi,col):col);}};
   const mixc=(a,b)=>[(a[0]+b[0])>>1,(a[1]+b[1])>>1,(a[2]+b[2])>>1];
   const disc=(cx,cy,r,f)=>{for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++){const d=Math.hypot(x,y); if(d<=r+.3)P(cx+x,cy+y,f(d/r,x,y));}};
@@ -880,17 +879,17 @@ function drawTankShot(c){
   LR(58,39,9,5,OL[2]);LR(58,39,9,.7,OL[0]);LR(60,42,5,3,OL[3]); line(LX(62),LY(42),LX(46),LY(47),2,[34,36,34],[60,62,58],[20,22,20]); // башенка командира и пулемёт
   LR(69,37,7,3.4,OL[3]);LR(69,37,7,.7,OL[1]); R(Math.round(LX(79)),Math.round(LY(56)),1,Math.round(22*S2),[70,72,70]); // прожектор, антенна
   // пушка
-  const BX=LX(33), BY=LY(30), MX=LX(-38), MY=LY(56);
-  line(BX,BY,MX,MY,5,OL[2],OL[0],OL[4]); line(LX(4),LY(40.5),LX(-8),LY(45),8,OL[2],OL[0],OL[4]); line(MX+3,MY,MX-1,MY-1,7,OL[3],OL[1],OL[4]);
+  line(BX,BY,MX,MY,5,OL[2],OL[0],OL[4]); line(BX+(MX-BX)*.40,BY+(MY-BY)*.40-1,BX+(MX-BX)*.52,BY+(MY-BY)*.52-1,7,OL[2],OL[0],OL[4]); line(MX+3,MY,MX-1,MY-1,7,OL[3],OL[1],OL[4]);
   // отсвет выстрела на броне
-  for(let y=LY(40);y<LY(8);y++)for(let x=TXo;x<LX(70);x++){const d=Math.hypot(x-MX,y-MY); if(d<150&&bay(x,y)<(1-d/150)*.95){const i=((y|0)*W+(x|0))*4; if(D[i+1]>D[i+2]+6)add(x,y,74,46,10,1);}}
+  for(let y=LY(40);y<LY(8);y++)for(let x=TXo;x<LX(70);x++){const d=Math.hypot(x-MX,y-MY); if(d<170&&bay(x,y)<(1-d/170)*.42){const i=((y|0)*W+(x|0))*4; if(D[i+1]>D[i+2]+6)add(x,y,74,46,10,1);}}
   // --- выстрел: пламя из ствола и пороховой дым
   const ang=Math.atan2(MY-BY,MX-BX), ux=Math.cos(ang), uy=Math.sin(ang);
-  blob(MX+ux*30,MY+uy*30-6,34,20,[[52,48,48],[78,72,70],[108,100,94],[146,136,124]],.09,.11,.30);
+  blob(MX+ux*20,MY+uy*20-10,24,15,[[52,48,48],[78,72,70],[108,100,94],[146,136,124]],.09,.11,.30);
   blob(MX+2,MY+16,18,9,[[60,56,54],[92,86,80]],.12,.14,.34);
-  for(let i=0;i<42;i++){const w=i<8?3+i*1.1:Math.max(0,11-(i-8)*.33); for(let k=-w;k<=w;k+=.5){const x=MX+ux*i-uy*k, y=MY+uy*i+ux*k, a=Math.abs(k)/(w+.01); P(x,y,a<.35?[255,250,224]:a<.7?[255,208,110]:[236,122,40]);}}
+  for(let i=0;i<34;i++){const w=i<7?3+i*1.0:Math.max(0,9-(i-7)*.34); for(let k=-w;k<=w;k+=.5){const x=MX+ux*i-uy*k, y=MY+uy*i+ux*k, a=Math.abs(k)/(w+.01); P(x,y,a<.35?[255,250,224]:a<.7?[255,208,110]:[236,122,40]);}}
   for(const sd of [-1,1])for(let i=0;i<18;i++)for(let t=0;t<2;t++){const x=MX+ux*4-uy*sd*i*1.1+ux*i*.3+t, y=MY+uy*4+ux*sd*i*1.1+uy*i*.3; P(x,y,i<8?[255,232,160]:[236,140,50]);}
-  glow(MX+ux*10,MY+uy*10,46,190,120,40,.7);
+  glow(MX+ux*10,MY+uy*10,40,190,120,40,.7);
+  for(let i=38;i<100;i++){const x=MX+ux*i,y=MY+uy*i; if(i%8<5){P(x,y,[255,240,190]);P(x,y+1,[255,190,100]);add(x,y+2,90,50,14,.7);add(x,y-1,90,50,14,.5);}}
   for(let i=0;i<30;i++){const d=44+rnd()*40,k=(rnd()-.5)*30; P(MX+ux*d-uy*k,MY+uy*d+ux*k,rnd()>.5?[255,200,100]:[230,120,44]);}
   // пыль из-под гусениц
   for(let i=0;i<110;i++){const x=TXo-6+rnd()*200,y=TY-3+rnd()*6; if(rnd()>.5)P(x,y,[60,58,56]);}
