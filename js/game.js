@@ -1070,7 +1070,5 @@ function cheatX(k){
 addEventListener('keydown',e=>{ if(e.key!=='0'||!S||screen==='title'||screen==='intro')return; e.stopImmediatePropagation();e.preventDefault(); if($('modal').classList.contains('on')&&$('modal-win').querySelector('.ck'))cheatBack(); else openCheats();},true);
 {let n=0,t0=0; $('ver').style.pointerEvents='auto'; $('ver').onclick=e=>{e.stopPropagation(); const now=Date.now(); n=now-t0<600?n+1:1; t0=now; if(n>=5){n=0; const o=store.get(OPTS)||{}; o.cheat=!o.cheat; store.set(OPTS,o); $('ver').style.color=o.cheat?'#c0473a':'#6e6658'; cheatSync();}};
  if(cheatOn())$('ver').style.color='#c0473a';}
-  const m={'0':()=>cheatGo('assault'),'9':()=>cheatGo('ost'),'8':()=>cheatGo('decree'),'7':()=>{cheatX('all');save();if(screen==='map'||screen==='wh')showMain();},'F2':openCheats}[k];
-  if(m){e.stopImmediatePropagation();e.preventDefault();m();}},true);
 
 $('cheat-btn').onclick=openCheats; cheatSync();
