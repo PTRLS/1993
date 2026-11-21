@@ -1309,15 +1309,16 @@ document.addEventListener('fullscreenchange',()=>FS.sync());document.addEventLis
 {const b=$('fsb'); if(b)b.onclick=e=>{e.stopPropagation();FS.toggle();}; FS.sync();}
 // ---------- шрифт: пиксельный по умолчанию, обычные подменяют те же два семейства (ширина подогнана, вёрстка не едет) ----------
 const Font={ list:[['pix','ПИКСЕЛЬНЫЙ'],['sans','ОБЫЧНЫЙ'],['serif','С ЗАСЕЧКАМИ']],
-  cur(){const k=(store.get(OPTS)||{}).font; return this.list.some(x=>x[0]===k)?k:'pix';},
+  // fontv:2 — с версии 0.55 пиксельный шрифт по умолчанию; старый выбор («ОБЫЧНЫЙ» и т. д.) сбрасывается один раз
+  cur(){const o=store.get(OPTS)||{}; if(o.fontv!==2) return 'pix'; return this.list.some(x=>x[0]===o.font)?o.font:'pix';},
   apply(){const k=this.cur(); let st=$('font-css'); if(!st){st=document.createElement('style');st.id='font-css';document.head.appendChild(st);} st.textContent=(typeof FONT_FACES!=='undefined'&&FONT_FACES[k])||''; document.documentElement.dataset.font=k;
-    const b=$('fntb'); if(b){b.textContent='ШРИФТ: '+this.list.find(x=>x[0]===k)[1]; b.style.top=(FS.can()?100:62)+'px'; const n=$('fntn'); if(n){n.style.top=(FS.can()?176:138)+'px'; n.style.display=k==='pix'?'none':'block';}} },
-  next(){const o=store.get(OPTS)||{}, i=this.list.findIndex(x=>x[0]===this.cur()); o.font=this.list[(i+1)%this.list.length][0]; store.set(OPTS,o); this.apply();} };
+    const b=$('fntb'); if(b)b.textContent='ШРИФТ: '+this.list.find(x=>x[0]===k)[1]; const n=$('fntn'); if(n)n.style.display=k==='pix'?'none':'block'; },
+  next(){const o=store.get(OPTS)||{}, i=this.list.findIndex(x=>x[0]===this.cur()); o.fontv=2; o.font=this.list[(i+1)%this.list.length][0]; store.set(OPTS,o); this.apply();} };
 {const b=$('fntb'); if(b)b.onclick=e=>{e.stopPropagation();Font.next();}; Font.apply();}
 // ---------- язык: переведённые копии скриптов (js/*.en.js и т. д.), выбор в настройках, смена = перезагрузка страницы ----------
 const Lang={ list:[['','Русский'],['en','English'],['zh','中文'],['ko','한국어']], cur:()=>GL,
   note:{en:'Translations into English, Chinese and Korean have not been checked by anyone. We cannot guarantee their quality. The original game is in Russian, and the translation may be inaccurate.',zh:'英文、中文和韩文翻译未经任何人校对，无法保证翻译质量。游戏原文为俄语，译文可能不准确。',ko:'영어, 중국어, 한국어 번역은 아무도 검수하지 않았습니다. 번역 품질을 보장할 수 없습니다. 게임 원문은 러시아어이며, 번역이 부정확할 수 있습니다.'},
-  sync(){const b=$('lngb'),p=$('lngp'); if(!b)return; if((typeof SINGLE!=='undefined'&&SINGLE)||!LANGS_ON){b.style.display='none';return;} const top=(FS.can()?138:100); b.style.top=top+'px'; b.textContent='⚑ '+this.list.find(x=>x[0]===GL)[1].toUpperCase()+' ▾'; p.style.top=(top+36)+'px'; const f=$('fntn'); if(f)f.style.top=(top+38)+'px';
+  sync(){const b=$('lngb'),p=$('lngp'); if(!b)return; if((typeof SINGLE!=='undefined'&&SINGLE)||!LANGS_ON){b.style.display='none';return;} b.textContent='⚑ '+this.list.find(x=>x[0]===GL)[1].toUpperCase()+' ▾';
     const N=this.note; p.innerHTML='<span class="lx" style="position:absolute;right:6px;top:2px;cursor:pointer;padding:0 4px">✕</span>'+this.list.map(x=>`<div class="l${x[0]===GL?' on':''}" data-l="${x[0]}">${x[1]}</div>`).join('')+`<div class="n">Английский, китайский и корейский переводы никем не проверялись, качество не гарантируем. Оригинал игры на русском, перевод может быть некорректным.</div>`;
     p.querySelector('.lx').onclick=e=>{e.stopPropagation();p.style.display='none';}; p.querySelectorAll('.l').forEach(d=>d.onclick=e=>{e.stopPropagation();this.set(d.dataset.l);}); },
   set(l){ if(l===GL){$('lngp').style.display='none';return;} const o=store.get(OPTS)||{}; if(l)o.lang=l; else delete o.lang; store.set(OPTS,o); if(l&&window.Stat)Stat.ev('lang-'+l); location.href=location.pathname; } };
