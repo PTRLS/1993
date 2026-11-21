@@ -98,7 +98,7 @@ function openStats(){const st=achStats(), g=achGot(), win=$('modal-win'); win.cl
   const ids=Object.keys(ENDINGS), nm=id=>id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id, TN={win:'Победы',neu:'Нейтральные исходы',lose:'Поражения'};
   const mine={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])mine[endTier(id)]+=st.ends[id];
   const bar=(k,l,cls)=>`<div class="stb ${cls||''}"><span>${l}</span><div><i data-bar="${k}"></i></div><b data-val="${k}">…</b></div>`;
-  const tierBlock=t=>`<h3 class="sth t-${t}">${TN[t]} <b data-val="tier-${t}"></b></h3>`+ids.filter(id=>endTier(id)===t).map(id=>bar(endEvName(id),nm(id),'t-'+t)).join('');
+  const tierBlock=t=>bar('tier-'+t,TN[t],'t-'+t);
   win.innerHTML=`<div class="close xtop">✕ ЗАКРЫТЬ</div><h2>СТАТИСТИКА</h2><div class="sub" id="st-net">Загружаю общий счётчик…</div>
    <div class="stg"><div><h3 class="sth">ВСЕ ИГРОКИ</h3>${bar('start','Начали игру')}${bar('decree','Дожили до указа №1400')}${bar('assault','Дошли до штурма')}
      <h3 class="sth">ЧЕМ КОНЧИЛОСЬ <small>доля от всех законченных партий</small></h3>${tierBlock('win')}${tierBlock('neu')}${tierBlock('lose')}</div>
@@ -118,12 +118,12 @@ async function statsFill(ids){const e=$('st-net'), set=(k,v,w)=>{const a=documen
     if(!$('st-net'))return;
     e.textContent='Счётчик общий для всех, кто играет по ссылке. Считаются люди, а не партии: каждый учтён один раз.'+(start<20?' Данных пока мало, цифры будут прыгать.':'');
     set('start',fmt(start),100); set('decree',pct(dec,start)+' · '+fmt(dec),start?dec/start*100:0); set('assault',pct(ass,start)+' · '+fmt(ass),start?ass/start*100:0);
-    const T={win:0,neu:0,lose:0}; ids.forEach((id,i)=>{T[endTier(id)]+=cnt[i]; set(ev[i],pct(cnt[i],tot)+' · '+fmt(cnt[i]),tot?cnt[i]/tot*100:0);});
-    for(const t in T)set('tier-'+t,pct(T[t],tot)+' · '+fmt(T[t]));
+    const T={win:0,neu:0,lose:0}; ids.forEach((id,i)=>{T[endTier(id)]+=cnt[i];});
+    for(const t in T)set('tier-'+t,pct(T[t],tot)+' · '+fmt(T[t]),tot?T[t]/tot*100:0);
   }catch(x){achNetOn=false; blank('Общий счётчик сейчас недоступен (нет сети или его режет блокировщик). Справа ваша личная статистика.');} }
 function openAch(ch){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('full');
   const tiers={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])tiers[endTier(id)]+=st.ends[id];
-  const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id):'???'}${c?' ×'+c:''} <i data-net="${endEvName(id)}"></i></span>`;}).join('');
+  const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id):'???'}${c?' ×'+c:''}</span>`;}).join('');
   win.innerHTML=`<div class="close xtop">✕ ЗАКРЫТЬ</div><h2>ДОСТИЖЕНИЯ · ${n} ИЗ ${ACH.length}</h2><div class="sub" id="ach-net">Достижения хранятся в этом браузере. В партиях с читами они не выдаются.</div>
    <div class="achg">`+ACH.map(a=>`<div class="ach${g[a.id]?' on':''}"><canvas width="64" height="64" data-a="${a.id}"></canvas><div><b>${a.nm}</b><span>${a.d}</span></div><i data-net="ach-${a.id}"></i></div>`).join('')+`</div>
    <h3 class="achh">ВАША СТАТИСТИКА</h3><div class="achs">Партий: <b>${st.games||0}</b> · дошли до штурма: <b>${st.assaults||0}</b> · побед: <b class="p">${tiers.win}</b> · нейтральных: <b>${tiers.neu}</b> · поражений: <b class="n">${tiers.lose}</b></div>
