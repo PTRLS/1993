@@ -240,10 +240,16 @@ function startAssault(){
   const A=S.A={r:0,shares:{entr:40,front:40,tower:20},ctl:{entr:100,front:100},fire:0,wnd:0,stock:Math.round(S.sup*2),ammo:Math.round(S.gun),airUsed:0,air:clamp(Math.round(S.med*.5+S.city*.2+(S.pts.ost>=100?15:0)),0,100),inc:{},incoming:0,orders:2,used:{},once:{},log:[],alpha:'wait'};
   A.units=UNITS.map(u=>{const st=unitStance(u);return {id:u.id,cur:st==='refuse'?0:st==='waver'?u.str*.9:u.src==='alpha'?0:u.str,st,mor:u.src==='alpha'?95:st==='waver'?44:85,lost:0,dead:0};});
   const ground=A.units.filter(u=>['taman','vv','omon'].includes(u.id));
-  if(ground.every(u=>u.st==='refuse'))return ending('army_refused');
+  {const om=ground.find(u=>u.id==='omon'); if(om.st==='waver'&&ground.every(u=>u===om||u.st==='refuse')){om.st='refuse';om.cur=0;om.why='один на парламент не пошёл';}} if(ground.every(u=>u.st==='refuse'))A.allRef=1; // все наземные части отказались: остаётся только спецназ
   const refused=A.units.filter(u=>u.st==='refuse').map(u=>UNITS.find(x=>x.id===u.id).nm);
   alog(refused.length?'Отказались выполнять приказ: '+refused.join(', ')+'.':'Все части Кремля выполняют приказ.');
   A.lost=0; A.muster=musterRoll(A);
+  // подготовка превращается в силу штурма: Легитимность, Москва, готовность ОМОНа и лояльность ведомств сбивают стартовый дух частей
+  { const L=A.muster, dn=(u,d)=>{ if(u.cur>3&&u.id!=='alpha')u.mor=clamp(uMorV(u)-d,28,100); };
+    const dl=S.leg>50?Math.round((S.leg-50)*.5):0; if(dl){for(const u of A.units)dn(u,dl); L.push({g:1,t:'Легитимность '+S.leg+': части Кремля идут неохотно, дух всех −'+dl});}
+    const om=A.units.find(u=>u.id==='omon'), rd=S.omon==null?100:S.omon, do1=Math.round((100-rd)*.5)+(S.city>60?Math.round((S.city-60)*.3):0); if(do1&&om.cur>3){dn(om,do1); L.push({g:1,t:'ОМОН не рвётся в бой (готовность '+rd+'%, Москва '+S.city+'%): его дух −'+do1});}
+    for(const u of A.units){const U=UNITS.find(x=>x.id===u.id); if(U.src==='alpha'||u.cur<=3)continue; const v=S.pts[U.src], d=v>30?Math.round((v-30)*.3):0; if(d)dn(u,d);}
+    if(S.flags.corner){A.noRes=1; for(const u of A.units)dn(u,10); L.push({g:1,t:'Кремль загнан в угол: приказ отдан в спешке, резервов не будет, дух всех −10'});} }
   save(); show('assault'); renderAssault(); musterCard();
 }
 // ---------- the last night: everyone you dealt with shows up, or does not. Like a final battle, every earlier choice counts ----------
@@ -261,7 +267,7 @@ function musterRoll(A){const L=[], add=(g,t)=>L.push({g,t}), lv=id=>S.fac[id].n>
   l=lv('so'); if(l>=3)add(1,'«Союз офицеров» принял штаб обороны: все участки держатся лучше'); else if(l>=0&&l<=1){A.air=Math.max(0,A.air-10);S.rad=clamp(S.rad+5,0,100);add(0,'Офицеры Терехова воюют сами по себе: Эфир −10, Радикализм +5');}
   // силы снаружи
   for(const [id,nm] of [['mo','Минобороны'],['gs','Генштаб'],['mvd','МВД']]){const v=S.pts[id],hi=id==='mvd'?50:65,lo=id==='mvd'?30:45; add(v>=lo?1:0,nm+' ('+v+'% за вас, отказ от '+hi+'): '+(v>=hi?'части отказались выполнять приказ':v>=lo?'части колеблются и идут не в полную силу':'части выполняют приказ'));}
-  {const o=S.omon==null?100:S.omon; add(o<=60?1:0,'ОМОН: '+(o<=30?'бойцы отказались идти на здание':o<=60?'колеблется и идёт не в полную силу':'выполняет приказ')+' (готовность '+o+'%)');}
+  {const o=S.omon==null?100:S.omon; add(o<=60?1:0,'ОМОН: '+(o<=30?'бойцы отказались идти на здание':A.allRef?'остался один и на парламент не пошёл':o<=60?'колеблется и идёт не в полную силу':'выполняет приказ')+' (готовность '+o+'%)');}
   if(S.pts.mer>=60){A.medK=(A.medK||1)*.85;add(1,'Мэрия не отозвала «скорые»: потерь на 15% меньше');} else if(S.pts.mer<25&&S.bar>0){S.bar--;add(0,'Мэрия дала бульдозеры: один ряд баррикад снесён до рассвета');}
   if(S.pts.smo>=60){A.incoming+=500;add(1,'Со Смоленской идёт колонна: через час +500 человек');}
   if(S.city>=60){A.incoming+=600;add(1,'Москва за вас: через час у стен ещё 600 человек');} else if(S.city<=25){const d=Math.round(S.ppl*.15);S.ppl-=d;add(0,'Москва смотрит штурм по телевизору: '+fmt(d)+' человек ушли от стен ночью');}
@@ -284,7 +290,7 @@ function musterCard(){const A=S.A; A.card='muster'; save(); Sfx.play('engine');
   $('modal-win').innerHTML=`<h2>ПОСЛЕДНЯЯ НОЧЬ: КТО С ВАМИ</h2><div class="sub">Всё, что вы делали две недели, пришло к стенам или не пришло. Фракции, силовые структуры, пресса и ваши решения.</div>
    <div class="mus"><div><h3>ЗА ВАС</h3>${col(1)}</div><div><h3>ПРОТИВ ВАС</h3>${col(0)}</div></div><div class="close">ENTER — к бою</div>`;
   $('modal').classList.add('on'); $('modal-win').querySelector('.close').onclick=musterClose;}
-function musterClose(){const A=S.A; if(!A||A.card!=='muster')return; Sfx.play('boom'); A.card=0; $('modal').classList.remove('on'); save(); renderAssault(); incidentCard();}
+function musterClose(){const A=S.A; if(!A||A.card!=='muster')return; Sfx.play('boom'); A.card=0; $('modal').classList.remove('on'); save(); renderAssault(); if(A.allRef&&A.alpha==='wait'){alog('Армия, внутренние войска и ОМОН на здание не пошли. У Кремля остался только спецназ.');return alphaCard();} incidentCard();}
 function alog(t,cls){S.A.log.unshift({t,cls:cls||'',h:HOURS[Math.min(S.A.r,HOURS.length-1)]});S.A.log.length=Math.min(S.A.log.length,12);}
 function defForce(){const r=S.fac.rne.n,s=S.fac.so.n;return S.mil+3*r+1.5*s+.05*S.ppl;}
 // the tower: snipers and spotters on the upper floors blunt the push on both doors
@@ -340,7 +346,7 @@ function nextHour(){
   if(A.shares.tower<10){S.hope=clamp(S.hope-2,0,100);A.fire=Math.min(15,A.fire+1);alog('Башня пуста: верхние этажи заняли чужие стрелки, пожар тушить некому. Решимость −2.','bad');}
   if(S.mil>0){const am=Math.round(S.mil/8); const had=A.ammo>0; A.ammo=Math.max(0,A.ammo-am); if(had&&A.ammo<=0)alog('Патроны кончились. Оборона держится на прикладах и бутылках.','bad');}
   // siege: after noon reserves come up to the units whose structures stayed with the Kremlin, and the House tires
-  if(A.r>=5){S.hope=clamp(S.hope-1,0,100); if(A.r%2===1){ if(kDead(A)>=350)alog('Резервов нет: после таких потерь Кремль не решается слать новые части.'); else{for(const u of A.units){const U=UNITS.find(x=>x.id===u.id); if(u.cur>3&&uEff(u)>0){u.cur=Math.min(U.str*1.2,u.cur+U.str*.15);uMor(u,8);if(!u.why)u.why='резервы';}} alog('К штурмующим подошли резервы. Здание берут измором.','bad');} } }
+  if(A.r>=5){S.hope=clamp(S.hope-1,0,100); if(A.r%2===1){ if(A.noRes)alog('Резервов нет: Кремлю больше некого прислать.'); else if(kDead(A)>=350)alog('Резервов нет: после таких потерь Кремль не решается слать новые части.'); else{for(const u of A.units){const U=UNITS.find(x=>x.id===u.id); if(u.cur>3&&uEff(u)>0){u.cur=Math.min(U.str*1.2,u.cur+U.str*.15);uMor(u,8);if(!u.why)u.why='резервы';}} alog('К штурмующим подошли резервы. Здание берут измором.','bad');} } }
   A.r++; A.orders=2; A.used={}; A.airUsed=0;
   if(A.ctl.entr<=0||A.ctl.front<=0)return finale('fell',A.ctl.entr<=0?'entr':'front');
   if(S.hope<=0)return finale('broken');
@@ -374,9 +380,9 @@ function finaleGo(){const A=S.A; if(!A||A.card!=='fin')return; A.card=0; $('moda
 function alphaCard(){
   const A=S.A;
   const DS=[[S.leg>=50,'Легитимность от 50 (сейчас '+S.leg+')'],[A.air>=40,'Эфир от 40 (сейчас '+Math.round(A.air)+')']], draw=DS.every(x=>x[0]);
-  $('modal-win').innerHTML=`<h2>«АЛЬФА» У ПОДЪЕЗДА</h2><div class="sub">Четыре часа штурма, а здание не взято. Кремль бросает последний резерв: «Альфу» и «Вымпел». Их офицеры не хотят стрелять по парламенту и предлагают вывести людей под свои гарантии. Чем это кончится, зависит от того, смотрит ли на них страна.</div>`+
+  $('modal-win').innerHTML=`<h2>«АЛЬФА» У ПОДЪЕЗДА</h2><div class="sub">${A.allRef?'Ни одна часть не выполнила приказ. У Кремля остался последний резерв: «Альфа» и «Вымпел».':'Четыре часа штурма, а здание не взято. Кремль бросает последний резерв: «Альфу» и «Вымпел».'} Их офицеры не хотят стрелять по парламенту и предлагают вывести людей под свои гарантии. Чем это кончится, зависит от того, смотрит ли на них страна.</div>`+
     [{t:'Впустить «Альфу» и выйти под её гарантии',d:draw?'<span class="p">Нейтральный исход:</span> «Альфа» при камерах отказывается от штурма. Здание вы теряете, но Ельцин больше не может командовать.':'<span class="n">Поражение:</span> тихая сдача. Чтобы это стало ничьей, нужны '+DS.filter(x=>!x[0]).map(x=>x[1]).join(' и ')+'.'},
-     {t:'Обратиться к офицерам по рации',d:S.A.air>=10?`Эфир −10 · шанс ${Math.round((.25+S.leg/250)*100)}%, что «Альфа» откажется штурмовать и уйдёт. Бой с остальными продолжается`:'<span class="n">нужно 10 Эфира</span>'},
+     {t:'Обратиться к офицерам по рации',d:S.A.air>=10?`Эфир −10 · шанс ${Math.round((.25+S.leg/250)*100)}%, что «Альфа» откажется штурмовать и уйдёт. ${S.A.allRef?'Тогда штурмовать будет некому':'Бой с остальными продолжается'}`:'<span class="n">нужно 10 Эфира</span>'},
      {t:'Драться',d:'«Альфа» пойдёт на штурм подъезда №20. Это самая сильная часть Кремля.'}]
     .map((c,i)=>`<div class="law" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="d">${c.d}</div></div>`).join('');
   $('modal').classList.add('on'); A.card=1;
