@@ -541,7 +541,7 @@ function endTurn(){ Sfx.play('night'); const d0={...snap(),hope:S.hope,rad:S.rad
   if(dc)notes.push('Борьба за Москву: '+sg(dc));
   if(S.flags.komp>0)S.flags.komp--;
   if(S.mil>=400)S.rad=clamp(S.rad+1,0,100);
-  if(S.phase===2){const o0=S.omon==null?100:S.omon; let o=o0+4; if(S.pts.mer>=65)o-=4; if(S.pts.mvd>=50)o-=4; if(S.city>=60)o-=2; S.omon=clamp(o,0,100); if(o0<100&&S.omon>o0)notes.push('ОМОНу выдали премии: готовность '+S.omon+'%');}
+  if(S.phase===2){const o0=S.omon==null?100:S.omon; let o=o0+4; if(S.pts.mer>=65)o-=4; if(S.city>=60)o-=2; S.omon=clamp(o,0,100); if(o0<100&&S.omon>o0)notes.push('ОМОНу выдали премии: готовность '+S.omon+'%');}
   // resolve is the unity of the House: when it cracks, deputies walk out
   if(S.phase===2&&S.hope<45){let out=Math.round((45-S.hope)/5)+2, o0=out; for(const id of ['kol','sm','agr','ros']){const f=S.fac[id],k=Math.min(f.n,out);f.n-=k;out-=k;if(f.n<4){f.n=0;f.room=null;} if(!out)break;} notes.push('Раскол: ушли '+(o0-out)+' депутатов');}
   S.hope=clamp(S.hope-(S.phase===2?4:1)-(S.sup<3?1:0)+RP.hope+dh,0,100);
@@ -785,8 +785,6 @@ const ENDINGS={
     p:'Ельцин попробовал решить дело силой и не смог. Конституционный суд, советы регионов и пресса едины: указ незаконен. Кремль снимает блокаду и соглашается на одновременные выборы на условиях Съезда.'},
   elect_deal:{tier:'neu',pic:'wh',h:'НУЛЕВОЙ ВАРИАНТ',q:'Выборы вместо штурма',
     p:'До стрельбы не дошло. Суд, регионы и пресса заставили обе стороны отступить: указ №1400 отменён, решения Съезда тоже, назначены одновременные выборы. Верховный Совет дотянул до них, но это не победа. На выборах у Кремля телевидение, деньги и избиркомы, а новый закон о парламенте писали уже без вас. Прежней роли у Верховного Совета больше не будет.'},
-  army_refused:{win:1,pic:'wh',h:'ПРИКАЗ НЕ ВЫПОЛНЕН',q:'Войска не пошли на штурм',
-    p:'Офицеры, с которыми говорили депутаты, отказались стрелять по парламенту. Армия, внутренние войска и милиция остались на месте, спецназ в одиночку здание брать не стал. Штурм сорван, Кремлю приходится садиться за стол переговоров.'},
   held:{win:1,pic:'whf',h:'УСТОЯЛИ',q:'Штурм захлебнулся',
     p:'Белый дом горит, но входы удержаны. К вечеру к зданию стекаются десятки тысяч москвичей. Кремль объявляет перемирие.'},
   held_iso:{tier:'neu',pic:'whf',h:'ОТБИЛИСЬ, НО ОДНИ',q:'Штурм отбит, признания нет',
@@ -827,7 +825,6 @@ function drawScore(){const A=S.A||{units:[],air:0}; return [[S.leg>=50,'Леги
 function ending(id,exact){
   if(exact);
   else if((id==='fell'||id==='broken')&&drawScore().filter(x=>x[0]).length>=3)id='pyrrhic';
-  if(!exact&&id==='held'&&S.A&&S.A.allRef)id='army_refused';
   if(!exact&&id==='held'&&S.flags.corner)id=S.flags.corner==='army'?'win_army':'win_elect';
   if(!exact&&id==='held'&&(S.rad>=70||(S.leg<35&&S.A&&S.A.air<30)||(S.A&&S.A.air<50&&(S.A.lost||0)+S.A.units.reduce((x,u)=>x+(u.lost||0),0)>=1500)))id='held_iso'; // без прессы или ценой большой крови без камер // кучка радикалов без прессы: отбились, но никто не признал
   const E={...ENDINGS[id]}; if(id==='fell')E.h=dateStr(S.day).toUpperCase(); if(S.A)S.A.card=0; $('modal').classList.remove('on');

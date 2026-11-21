@@ -46,7 +46,7 @@ setInterval(()=>{try{achTick();}catch(e){}},1000);
 function achEnd(id){ if(!S||S.cheat)return; try{achTickEnd();}catch(e){}
   const st=achStats(); st.games=(st.games||0)+1; if(S.A)st.assaults=(st.assaults||0)+1; st.ends=st.ends||{}; st.ends[id]=(st.ends[id]||0)+1; store.set(STATS_KEY,st);
   const tier=endTier(id), A=S.A, notLost=tier!=='lose';
-  if(id==='win_army')achGive('army'); if(id==='win_elect')achGive('elect'); if(id==='army_refused')achGive('refuse');
+  if(id==='win_army')achGive('army'); if(id==='win_elect')achGive('elect');
   if(notLost&&S.fac.rne.n>0&&(S.flags.brand||0)>=1)achGive('zhupel');
   if(notLost&&S.flags.rneWas&&S.fac.rne.n<=0&&!S.flags.rneLeft)achGive('fluger');
   if(A&&(id==='held'||id==='held_iso')){ if(A.r>=HOURS.length){achGive('dark'); if((A.minCtl==null?100:A.minCtl)>=50&&A.ctl.entr>=50&&A.ctl.front>=50)achGive('hold');}

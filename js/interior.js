@@ -227,7 +227,7 @@ function doFacAct(fid,i){if(facActState(fid,i)!==true)return; const a=facActs(fi
 
 // =====================================================================================================
 // ===== the assault: a separate level, two hours per turn from 07:00 to 17:00 =====
-function unitStance(u){if(u.src==='alpha')return S.A&&S.A.alpha||'wait'; if(u.id==='omon'){const o=S.omon==null?100:S.omon;return o<=30?'refuse':o<=60?'waver':'attack';}const v=S.pts[u.src]; if(u.src==='mvd')return v>=50?'refuse':v>=30?'waver':'attack'; return v>=65?'refuse':v>=45?'waver':'attack';}
+function unitStance(u){if(u.src==='alpha')return S.A&&S.A.alpha||'wait'; if(u.id==='omon'){const o=S.omon==null?100:S.omon;return o<=60?'waver':'attack';}const v=S.pts[u.src]; if(u.src==='mvd')return v>=50?'refuse':v>=30?'waver':'attack'; return v>=65?'refuse':v>=45?'waver':'attack';}
 const STANCE_NM={attack:'наступают',waver:'колеблются',halt:'встали',refuse:'отказались',wait:'в резерве',stopped:'выведены'};
 // дух части решает, идёт ли она в бой: от 50 наступает, 25–49 колеблется (идёт вполсилы), ниже 25 стоит. Ельцин звонками тянет дух вверх, вы — вниз
 const MOR_GO=50, MOR_HALT=25;
@@ -240,7 +240,6 @@ function startAssault(){
   const A=S.A={r:0,shares:{entr:40,front:40,tower:20},ctl:{entr:100,front:100},fire:0,wnd:0,stock:Math.round(S.sup*2),ammo:Math.round(S.gun),airUsed:0,air:clamp(Math.round(S.med*.5+S.city*.2+(S.pts.ost>=100?15:0)),0,100),inc:{},incoming:0,orders:2,used:{},once:{},log:[],alpha:'wait'};
   A.units=UNITS.map(u=>{const st=unitStance(u);return {id:u.id,cur:st==='refuse'?0:st==='waver'?u.str*.9:u.src==='alpha'?0:u.str,st,mor:u.src==='alpha'?95:st==='waver'?44:85,lost:0,dead:0};});
   const ground=A.units.filter(u=>['taman','vv','omon'].includes(u.id));
-  {const om=ground.find(u=>u.id==='omon'); if(om.st==='waver'&&ground.every(u=>u===om||u.st==='refuse')){om.st='refuse';om.cur=0;om.why='один на парламент не пошёл';}} if(ground.every(u=>u.st==='refuse'))A.allRef=1; // все наземные части отказались: остаётся только спецназ
   const refused=A.units.filter(u=>u.st==='refuse').map(u=>UNITS.find(x=>x.id===u.id).nm);
   alog(refused.length?'Отказались выполнять приказ: '+refused.join(', ')+'.':'Все части Кремля выполняют приказ.');
   A.lost=0; A.muster=musterRoll(A);
@@ -267,7 +266,7 @@ function musterRoll(A){const L=[], add=(g,t)=>L.push({g,t}), lv=id=>S.fac[id].n>
   l=lv('so'); if(l>=3)add(1,'«Союз офицеров» принял штаб обороны: все участки держатся лучше'); else if(l>=0&&l<=1){A.air=Math.max(0,A.air-10);S.rad=clamp(S.rad+5,0,100);add(0,'Офицеры Терехова воюют сами по себе: Эфир −10, Радикализм +5');}
   // силы снаружи
   for(const [id,nm] of [['mo','Минобороны'],['gs','Генштаб'],['mvd','МВД']]){const v=S.pts[id],hi=id==='mvd'?50:65,lo=id==='mvd'?30:45; add(v>=lo?1:0,nm+' ('+v+'% за вас, отказ от '+hi+'): '+(v>=hi?'части отказались выполнять приказ':v>=lo?'части колеблются и идут не в полную силу':'части выполняют приказ'));}
-  {const o=S.omon==null?100:S.omon; add(o<=60?1:0,'ОМОН: '+(o<=30?'бойцы отказались идти на здание':A.allRef?'остался один и на парламент не пошёл':o<=60?'колеблется и идёт не в полную силу':'выполняет приказ')+' (готовность '+o+'%)');}
+  {const o=S.omon==null?100:S.omon; add(o<=60?1:0,'ОМОН: '+(o<=60?'колеблется и идёт не в полную силу':'выполняет приказ')+' (готовность '+o+'%)');}
   if(S.pts.mer>=60){A.medK=(A.medK||1)*.85;add(1,'Мэрия не отозвала «скорые»: потерь на 15% меньше');} else if(S.pts.mer<25&&S.bar>0){S.bar--;add(0,'Мэрия дала бульдозеры: один ряд баррикад снесён до рассвета');}
   if(S.pts.smo>=60){A.incoming+=500;add(1,'Со Смоленской идёт колонна: через час +500 человек');}
   if(S.city>=60){A.incoming+=600;add(1,'Москва за вас: через час у стен ещё 600 человек');} else if(S.city<=25){const d=Math.round(S.ppl*.15);S.ppl-=d;add(0,'Москва смотрит штурм по телевизору: '+fmt(d)+' человек ушли от стен ночью');}
