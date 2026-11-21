@@ -190,7 +190,7 @@ function renderMenu(){const has=!!store.get(SAVE);
   menuItems().forEach((d,i)=>{d.classList.toggle('sel',i===menuSel);d.classList.toggle('off',d.dataset.m==='cont'&&!has);});
   if(typeof cheatSync==='function')cheatSync();}
 // анонимная статистика: window.Stat есть только в публичной копии. Партии с читами концовки и достижения не шлют
-function stat(n,once){try{ if(!window.Stat)return; if(S&&S.cheat&&/^(end|ach)-/.test(n))return; once?Stat.once(n):Stat.ev(n);}catch(e){}}
+function stat(n,once){try{ if(!window.Stat)return; if(S&&S.cheat&&/^(end-|ach-|decree$|assault$)/.test(n))return; once?Stat.once(n):Stat.ev(n);}catch(e){}}
 function newGame(){S=newState();S.am=snap();stat('start',1);stat('new');startDay();}
 function menuGo(m){
   if(m==='new')introStart(newGame);
