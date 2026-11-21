@@ -8,7 +8,7 @@ const dateOf=day=>new Date(1993,8,13+day);                // day 1 = 14 Sep 1993
 const dateStr=day=>{const d=dateOf(day);return d.getDate()+' '+MON[d.getMonth()];};
 const DECREE_DAY=8;
 const PRATE=5;                                            // Kremlin pressure per night in the crisis (100 = assault)
-const SAVE='1993-save-v4', CHRON='1993-chron', OPTS='1993-opts';
+const GL=window.GAME_LANG||'', SAVE='1993-save-v4'+(GL?'-'+GL:''), CHRON='1993-chron'+(GL?'-'+GL:''), OPTS='1993-opts';
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},
              set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},
              del(k){try{localStorage.removeItem(k);}catch(e){}}};
@@ -1311,9 +1311,21 @@ document.addEventListener('fullscreenchange',()=>FS.sync());document.addEventLis
 const Font={ list:[['pix','ПИКСЕЛЬНЫЙ'],['sans','ОБЫЧНЫЙ'],['serif','С ЗАСЕЧКАМИ']],
   cur(){const k=(store.get(OPTS)||{}).font; return this.list.some(x=>x[0]===k)?k:'pix';},
   apply(){const k=this.cur(); let st=$('font-css'); if(!st){st=document.createElement('style');st.id='font-css';document.head.appendChild(st);} st.textContent=(typeof FONT_FACES!=='undefined'&&FONT_FACES[k])||''; document.documentElement.dataset.font=k;
-    const b=$('fntb'); if(b){b.textContent='Аа ШРИФТ: '+this.list.find(x=>x[0]===k)[1]; b.style.top=(FS.can()?100:62)+'px'; const n=$('fntn'); if(n){n.style.top=(FS.can()?138:100)+'px'; n.style.display=k==='pix'?'none':'block';}} },
+    const b=$('fntb'); if(b){b.textContent='ШРИФТ: '+this.list.find(x=>x[0]===k)[1]; b.style.top=(FS.can()?100:62)+'px'; const n=$('fntn'); if(n){n.style.top=(FS.can()?138:100)+'px'; n.style.display=k==='pix'?'none':'block';}} },
   next(){const o=store.get(OPTS)||{}, i=this.list.findIndex(x=>x[0]===this.cur()); o.font=this.list[(i+1)%this.list.length][0]; store.set(OPTS,o); this.apply();} };
 {const b=$('fntb'); if(b)b.onclick=e=>{e.stopPropagation();Font.next();}; Font.apply();}
+// ---------- язык: переведённые копии скриптов (js/*.en.js и т. д.), выбор в настройках, смена = перезагрузка страницы ----------
+const Lang={ list:[['','Русский'],['en','English'],['zh','中文'],['ko','한국어']], cur:()=>GL,
+  note:{en:'Translations into English, Chinese and Korean have not been checked by anyone. We cannot guarantee their quality.',zh:'英文、中文和韩文翻译未经任何人校对，无法保证翻译质量。',ko:'영어, 중국어, 한국어 번역은 아무도 검수하지 않았습니다. 번역 품질을 보장할 수 없습니다.'},
+  sync(){const b=$('lngb'),p=$('lngp'); if(!b)return; if((typeof SINGLE!=='undefined'&&SINGLE)||!LANGS_ON){b.style.display='none';return;} const top=(FS.can()?138:100); b.style.top=top+'px'; b.textContent='⚑ '+this.list.find(x=>x[0]===GL)[1].toUpperCase()+' ▾'; p.style.top=(top+36)+'px'; const f=$('fntn'); if(f)f.style.top=(top+38)+'px';
+    const N=this.note; p.innerHTML=this.list.map(x=>`<div class="l${x[0]===GL?' on':''}" data-l="${x[0]}">${x[1]}</div>`).join('')+`<div class="n">${GL&&N[GL]?N[GL]+'<br><br>':''}Английский, китайский и корейский переводы никем не проверялись, качество не гарантируем.${GL==='en'?'':'<br><br>'+N.en}</div>`;
+    p.querySelectorAll('.l').forEach(d=>d.onclick=e=>{e.stopPropagation();this.set(d.dataset.l);}); },
+  set(l){ if(l===GL){$('lngp').style.display='none';return;} const o=store.get(OPTS)||{}; if(l)o.lang=l; else delete o.lang; store.set(OPTS,o); if(l&&window.Stat)Stat.ev('lang-'+l); location.href=location.pathname; } };
+{const b=$('lngb'); if(b){b.onclick=e=>{e.stopPropagation();const p=$('lngp');p.style.display=p.style.display==='none'?'block':'none';}; Lang.sync();}
+ if(window.HTML_TR){const T=window.HTML_TR; const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT); let n; while(n=w.nextNode()){const k=n.nodeValue.trim(); if(k&&T[k]!==undefined&&!n.parentNode.closest('#lngp'))n.nodeValue=n.nodeValue.replace(k,T[k]);}
+   document.querySelectorAll('[title]').forEach(e=>{if(T[e.title]!==undefined)e.title=T[e.title];});
+   const st=document.createElement('style'); st.textContent='.law.done .t::after{content:"'+(T['  ✔ принято']||'  ✔')+'"}'+(typeof CJK_CSS!=='undefined'?CJK_CSS:''); document.head.appendChild(st);} }
+
 drawMap(); applyOpts(); renderMenu(); show('title');
 
 (function(){const v=document.getElementById('ver');if(v)v.textContent='версия '+VERSION;})();

@@ -12,8 +12,8 @@
 #s-title .menu{position:absolute;left:64px;bottom:72px;font-family:"Press Start 2P",monospace;font-size:16px;line-height:34px;}
 #s-title .menu div{color:var(--paper-dim);}
 #s-title .menu .sel{color:var(--paper);}
-#s-title .menu .sel::before{content:"▶ ";color:var(--fire);}
-#s-title .menu div:not(.sel){padding-left:32px;}
+#s-title .menu .sel::before{content:"▶";color:var(--fire);position:absolute;left:0;}
+#s-title .menu div{padding-left:32px;position:relative;}
 #s-title .foot{position:absolute;right:28px;bottom:20px;font-size:16px;color:#6e6658;text-align:right;}
 #s-title .dates{position:absolute;right:28px;bottom:48px;font-family:"Press Start 2P",monospace;font-size:12px;color:#7d7362;letter-spacing:2px;}
 #s-title .scan{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 3px,rgba(0,0,0,.18) 3px 4px);pointer-events:none;}
