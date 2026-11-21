@@ -1311,7 +1311,7 @@ document.addEventListener('fullscreenchange',()=>FS.sync());document.addEventLis
 const Font={ list:[['pix','PIXEL'],['sans','REGULAR'],['serif','SERIF']],
   cur(){const k=(store.get(OPTS)||{}).font; return this.list.some(x=>x[0]===k)?k:'pix';},
   apply(){const k=this.cur(); let st=$('font-css'); if(!st){st=document.createElement('style');st.id='font-css';document.head.appendChild(st);} st.textContent=(typeof FONT_FACES!=='undefined'&&FONT_FACES[k])||''; document.documentElement.dataset.font=k;
-    const b=$('fntb'); if(b){b.textContent='FONT: '+this.list.find(x=>x[0]===k)[1]; b.style.top=(FS.can()?100:62)+'px'; const n=$('fntn'); if(n){n.style.top=(FS.can()?138:100)+'px'; n.style.display=k==='pix'?'none':'block';}} },
+    const b=$('fntb'); if(b){b.textContent='FONT: '+this.list.find(x=>x[0]===k)[1]; b.style.top=(FS.can()?100:62)+'px'; const n=$('fntn'); if(n){n.style.top=(FS.can()?176:138)+'px'; n.style.display=k==='pix'?'none':'block';}} },
   next(){const o=store.get(OPTS)||{}, i=this.list.findIndex(x=>x[0]===this.cur()); o.font=this.list[(i+1)%this.list.length][0]; store.set(OPTS,o); this.apply();} };
 {const b=$('fntb'); if(b)b.onclick=e=>{e.stopPropagation();Font.next();}; Font.apply();}
 // ---------- язык: переведённые копии скриптов (js/*.en.js и т. д.), выбор в настройках, смена = перезагрузка страницы ----------
