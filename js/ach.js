@@ -91,11 +91,11 @@ async function achNetFill(){ if(!/^https?:/.test(location.protocol)||achNetOn===
     const els=[...document.querySelectorAll('#modal-win [data-net]')];
     await Promise.all(els.map(async el=>{try{const n=await achCount(el.dataset.net); el.textContent=(n/total*100<1&&n>0?'<1':Math.round(n/total*100))+'%';}catch(e){}}));
   }catch(e){achNetOn=false;} }
-function openAch(){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('wide');
+function openAch(){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('full');
   const tiers={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])tiers[endTier(id)]+=st.ends[id];
   const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id):'???'}${c?' ×'+c:''} <i data-net="${endEvName(id)}"></i></span>`;}).join('');
   win.innerHTML=`<div class="close xtop">✕ ЗАКРЫТЬ</div><h2>ДОСТИЖЕНИЯ · ${n} ИЗ ${ACH.length}</h2><div class="sub" id="ach-net">Достижения хранятся в этом браузере. В партиях с читами они не выдаются.</div>
-   <div class="achg">`+ACH.map(a=>`<div class="ach${g[a.id]?' on':''}"><canvas width="32" height="32" data-a="${a.id}"></canvas><div><b>${a.nm}</b><span>${a.d}</span></div><i data-net="ach-${a.id}"></i></div>`).join('')+`</div>
+   <div class="achg">`+ACH.map(a=>`<div class="ach${g[a.id]?' on':''}"><canvas width="64" height="64" data-a="${a.id}"></canvas><div><b>${a.nm}</b><span>${a.d}</span></div><i data-net="ach-${a.id}"></i></div>`).join('')+`</div>
    <h3 class="achh">ВАША СТАТИСТИКА</h3><div class="achs">Партий: <b>${st.games||0}</b> · дошли до штурма: <b>${st.assaults||0}</b> · побед: <b class="p">${tiers.win}</b> · нейтральных: <b>${tiers.neu}</b> · поражений: <b class="n">${tiers.lose}</b></div>
    <div class="aes">${ends}</div>`;
   win.querySelectorAll('canvas[data-a]').forEach(c=>achIcon(c,c.dataset.a,!!g[c.dataset.a]));

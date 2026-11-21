@@ -23,7 +23,7 @@
 <title>1993</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/screens.css?v=1795243658">
+<link rel="stylesheet" href="css/screens.css?v=1795243987">
 <style>
   :root{
     --bg:#0b0c0f; --panel:#15161a; --panel2:#1c1d22; --line:#33312c; --line-hi:#5a5446;
@@ -254,9 +254,13 @@
   #s-assault .urow small span.p{color:#a9c47a} #s-assault .urow small span.n{color:#e0866a} .incy{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start} .incy .ph img{width:150px;display:block;image-rendering:pixelated;border:2px solid var(--line-hi)} .incy .ph b{display:block;font-family:'Press Start 2P';font-size:8px;color:var(--paper);margin-top:6px} .incy .ph small{display:block;font-family:'Tiny5';font-size:13px;line-height:1.1;color:var(--mute);margin-top:3px}
   #ach-toast{position:absolute;left:50%;top:-90px;transform:translateX(-50%);z-index:80;display:flex;gap:12px;align-items:center;padding:8px 16px 8px 8px;background:#14171f;border:2px solid var(--fire);box-shadow:4px 4px 0 #000;transition:top .35s;pointer-events:none;max-width:560px}
   #ach-toast.on{top:14px} #ach-toast canvas{width:48px;height:48px;image-rendering:pixelated;flex:none} #ach-toast small{display:block;font-family:'Press Start 2P';font-size:7px;letter-spacing:2px;color:var(--fire)} #ach-toast b{display:block;font-family:'Press Start 2P';font-size:11px;color:var(--paper);margin:5px 0 3px} #ach-toast span{font-size:15px;color:var(--paper-dim)}
-  .achg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 10px;margin-top:8px} .ach{display:grid;grid-template-columns:32px 1fr auto;gap:8px;align-items:center;padding:4px 6px;border:1px solid #222227;opacity:.55} .ach.on{opacity:1;border-color:var(--line-hi);background:#15171d}
-  .ach canvas{width:32px;height:32px;image-rendering:pixelated} .ach b{display:block;font-size:15px;color:var(--paper)} .ach span{display:block;font-size:12px;line-height:13px;color:var(--mute)} .ach i,.aend i{font-style:normal;font-size:13px;color:#7fa0cf}
-  .achh{margin:8px 0 2px} .achs{font-size:15px;color:var(--paper-dim)} .achs b{color:var(--paper)} .aes{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:6px} .aend{font-size:13px;padding:2px 6px;border:1px solid #222227;color:var(--paper-dim)} .aend.t-win{border-color:#4a6a3a} .aend.t-neu{border-color:#6a5a34} .aend.t-lose{border-color:#5a2a26} .aend.no{opacity:.45}
+  .modal .win.full{width:1264px;height:708px;max-height:708px;padding:14px 20px;position:relative;box-sizing:border-box} .win.full h2{font-size:20px;margin-bottom:4px}
+  .achg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 10px;margin-top:6px} .ach{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:4px 10px;min-height:56px;border:1px solid #222227;opacity:.55} .ach.on{opacity:1;border-color:var(--line-hi);background:#15171d}
+  .ach canvas{width:56px;height:56px;image-rendering:pixelated} .ach b{display:block;font-size:20px;line-height:21px;color:var(--paper)} .ach span{display:block;font-size:15px;line-height:16px;color:var(--paper-dim);margin-top:2px} .ach i{font-style:normal;font-size:18px;color:#7fa0cf} .aend i{font-style:normal;font-size:13px;color:#7fa0cf}
+  .achh{margin:6px 0 0} .achs{font-size:17px;color:var(--paper-dim)} .achs b{color:var(--paper)} .aes{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:6px} .aend{font-size:13px;padding:2px 6px;border:1px solid #222227;color:var(--paper-dim)} .aend.t-win{border-color:#4a6a3a} .aend.t-neu{border-color:#6a5a34} .aend.t-lose{border-color:#5a2a26} .aend.no{opacity:.45}
+  #a-banner{position:absolute;left:50%;top:-80px;transform:translateX(-50%);z-index:70;padding:8px 18px;background:#14171f;border:2px solid var(--line-hi);box-shadow:4px 4px 0 #000;transition:top .3s;pointer-events:none;max-width:620px;text-align:center}
+  #a-banner.on{top:92px} #a-banner.g{border-color:#6b8f4a} #a-banner.b{border-color:#b3322b} #a-banner b{display:block;font-family:'Press Start 2P';font-size:11px;color:var(--paper);margin-bottom:4px} #a-banner span{font-size:16px;color:var(--paper-dim)}
+  .finl{margin-top:8px;border-top:1px solid #222227} .finl div{display:grid;grid-template-columns:230px 1fr;gap:10px;padding:4px 0;border-bottom:1px solid #222227;font-size:16px} .finl div b{color:var(--paper)} .finl div span.p{color:#a9c47a} .finl div span.n{color:#e0866a}
   #s-assault .uhint{font-size:11px;color:var(--mute);padding-top:2px}
   #s-assault .urow.waver .stt,#s-assault .urow.wait .stt{color:#c9a25a}
   #s-assault .urow.refuse .nm,#s-assault .urow.stopped .nm{opacity:.5}
@@ -481,19 +485,20 @@
 
   <!-- ================= overlays ================= -->
   <div id="ach-toast"></div>
+  <div id="a-banner"></div>
   <div id="cheat-btn" style="display:none;position:absolute;left:0;top:0;z-index:60;font-family:'Press Start 2P';font-size:8px;padding:9px 11px;opacity:.85;background:#3a1512;border:2px solid #c0473a;color:#f3d27a;cursor:pointer">ЧИТ</div>
   <div class="modal" id="modal"><div class="win" id="modal-win"></div></div>
 </div>
 
-<script src="js/assets.js?v=1795243658"></script>
-<script src="js/faces.js?v=1795243658"></script>
-<script src="js/title.js?v=1795243658"></script>
-<script src="js/map.js?v=1795243658"></script>
-<script src="music/music.js?v=1795243658" onerror="this.remove()"></script>
-<script src="js/data.js?v=1795243658"></script>
-<script src="js/interior.js?v=1795243658"></script>
-<script src="js/game.js?v=1795243658"></script>
-<script src="js/ach.js?v=1795243658"></script>
+<script src="js/assets.js?v=1795243987"></script>
+<script src="js/faces.js?v=1795243987"></script>
+<script src="js/title.js?v=1795243987"></script>
+<script src="js/map.js?v=1795243987"></script>
+<script src="music/music.js?v=1795243987" onerror="this.remove()"></script>
+<script src="js/data.js?v=1795243987"></script>
+<script src="js/interior.js?v=1795243987"></script>
+<script src="js/game.js?v=1795243987"></script>
+<script src="js/ach.js?v=1795243987"></script>
 <script>document.querySelectorAll('.sndb').forEach(b=>b.onclick=e=>{e.stopPropagation();Music.toggle();});$('s-intro').onclick=()=>introNext(false);Music.sync();</script>
 </body>
 </html>
