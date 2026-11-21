@@ -401,7 +401,13 @@ const yCallUnit=A=>A.units.filter(u=>u.cur>3&&!u.called&&uMorV(u)<MOR_GO&&!(u.id
 const yCallLoy=u=>{const U=UNITS.find(x=>x.id===u.id);return U.src==='alpha'?40:u.id==='omon'?100-(S.omon==null?100:S.omon):S.pts[U.src];};
 const yCallGain=A=>Math.max(10,Math.round(40-yCallLoy(yCallUnit(A))/3)); // чем лояльнее вам структура, тем слабее действует звонок
 const yCallTalk=A=>clamp(.15+yCallLoy(yCallUnit(A))/200+S.leg/400,.1,.7);
+const gsChance=k=>clamp(S.pts.gs/130+(S.A.gsB||0)+(k||0),.05,.75);
 const INCIDENTS=[
+  // звонок в Генштаб: открывается приказом, не случайно. Генштабу подчинены только мотострелки; ВВ и ОМОН — это МВД, танки — Минобороны
+  {id:'gs_call', who:'kolesn', cond:A=>false, h:'ЗВОНОК В ГЕНШТАБ', p:()=>{const u=S.A.units.find(x=>x.id==='taman');return `Депутаты-генералы дозвонились до начальника Генштаба. Колесников слушает молча. Его мотострелки сейчас у парадного входа: дух ${Math.round(uMorV(u))}%, потери ${fmt(u.lost||0)}. Генштаб за вас на ${S.pts.gs}%. ВВ и ОМОН ему не подчиняются, танки тоже: говорить можно только о Таманской дивизии.`;},
+   ch:[{t:'Просить отвести дивизию от здания',d:()=>'шанс '+Math.round(gsChance()*100)+'%: мотострелки уходят совсем. Иначе доложит в Кремль: их дух +10',run:A=>{const u=A.units.find(x=>x.id==='taman'); if(Math.random()<gsChance()){u.cur=0;u.st='stopped';u.why='отвёл Генштаб';alog('Мотострелки: Генштаб отвёл дивизию от здания.');aBanner('МОТОСТРЕЛКИ: ОТВЕДЕНЫ','Колесников приказал Таманской дивизии отойти от Белого дома.',true);}else{u.mor0=uMorV(u);uMor(u,10);u.why='звонок сорвался';alog('Колесников выслушал и положил трубку. Через минуту о звонке знали в Кремле.','bad');aBanner('ГЕНШТАБ ОТКАЗАЛ','Колесников доложил о звонке в Кремль. Дух мотострелков +10.',false);}}},
+       {t:'Просить не торопиться: пусть роты залягут и ждут',d:()=>'наверняка: дух мотострелков −15',rq:'Генштаб 30',req:()=>S.pts.gs>=30,run:A=>{const u=A.units.find(x=>x.id==='taman');u.mor0=uMorV(u);uMor(u,-15);u.why='Генштаб тянет время';alog('Генштаб не отменил приказ, но и не торопит. Мотострелки залегли.');}},
+       {t:'Зачитать постановление Съезда: приказ преступен, отвечать будет лично он',d:()=>'шанс '+Math.round(gsChance(.2)*100)+'%: мотострелки уходят. Иначе Легитимность −3 и их дух +10',rq:'Легитимность 60',req:()=>S.leg>=60,run:A=>{const u=A.units.find(x=>x.id==='taman'); if(Math.random()<gsChance(.2)){u.cur=0;u.st='stopped';u.why='отвёл Генштаб';alog('Мотострелки: Колесников не захотел отвечать за штурм. Дивизию отвели.');aBanner('МОТОСТРЕЛКИ: ОТВЕДЕНЫ','Колесников не захотел отвечать за штурм лично.',true);}else{u.mor0=uMorV(u);uMor(u,10);u.why='звонок сорвался';S.leg=clamp(S.leg-3,0,100);alog('Колесников ответил, что присягал президенту. Запись разговора передали журналистам Кремля.','bad');}}}]},
   {id:'y_addr', cond:A=>A.r>=1, h:'ОБРАЩЕНИЕ ЕЛЬЦИНА', p:'В девять утра президент выходит в эфир: «Вооружённый мятеж в Москве будет подавлен. Те, кто пошёл против мирного города, получат по заслугам». Солдаты слушают по рациям.',
    ch:[{t:'Не отвечать',d:'дух всех частей +8 · Решимость −3',run:A=>{for(const u of A.units)uMor(u,8);S.hope=clamp(S.hope-3,0,100);}},
        {t:'Ответить в прямом эфире: депутаты в зале, стреляют по ним',d:'Эфир −8 · дух частей −6',rq:'Эфир 30',req:()=>S.A.air>=30&&S.A.air>=8,run:A=>{S.A.air-=8;for(const u of A.units)uMor(u,-6);}},
@@ -512,9 +518,9 @@ function incidentCard(){const A=S.A; if(!A||screen!=='assault')return;
   if(!I){const pool=INCIDENTS.filter(x=>!A.inc[x.id]&&x.cond(A)); if(!pool.length)return; const pr=pool.filter(x=>x.prio); I=pr.length?pr[0]:pool[Math.floor(Math.random()*pool.length)];}
   if(A.card!=='inc')Sfx.play(/^u_|^y_/.test(I.id)?'static':'alarm',1.2);
   A.card='inc'; A.incId=I.id; save();
-  const yel=/^y_/.test(I.id), body=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
+  const who=/^y_/.test(I.id)?'yeltsin':I.who, yel=!!who, body=`<h2>${I.h}</h2><div class="sub">${typeof I.p==='function'?I.p():I.p}</div>`+I.ch.map((c,i)=>{const lk=c.req&&!c.req();
     return `<div class="law${lk?' lock':''}" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="e">${typeof c.d==='function'?c.d():c.d}${c.rq?` · <span class="${lk?'n':'p'}">${lk?'нужно':'открыто'}: ${c.rq}</span>`:''}</div></div>`;}).join('');
-  $('modal-win').innerHTML=yel?`<div class="incy"><div class="ph"><img src="${ASSET_YELTSIN}"><b>БОРИС ЕЛЬЦИН</b><small>на прямой линии</small></div><div>${body}</div></div>`:body;
+  $('modal-win').innerHTML=yel?`<div class="incy"><div class="ph"><img src="${who==='yeltsin'?ASSET_YELTSIN:PEOPLE[who].img}"><b>${who==='yeltsin'?'БОРИС ЕЛЬЦИН':PEOPLE[who].nm.toUpperCase()}</b><small>${who==='yeltsin'?'на прямой линии':PEOPLE[who].role+', на прямой линии'}</small></div><div>${body}</div></div>`:body;
   $('modal').classList.add('on');
   $('modal-win').querySelectorAll('.law').forEach(e=>e.onclick=()=>incChoose(+e.dataset.i));
 }
@@ -526,9 +532,8 @@ const A_ORDERS=[
    run:()=>{const s=S.A.ctl.entr<=S.A.ctl.front?'entr':'front';S.A.ctl[s]=Math.min(100,S.A.ctl[s]+20);S.mil-=50;for(const u of S.A.units)if(UNITS.find(x=>x.id===u.id).target===s&&u.cur>3){uMor(u,-7);u.lost=(u.lost||0)+15;}alog('Контратака у входа «'+SECTORS.find(x=>x.id===s).nm+'».');}},
   {t:'Завал у слабого входа',      d:'Люди −100 · вход +10', req:()=>S.ppl>=100||'нужно 100 человек',
    run:()=>{const s=S.A.ctl.entr<=S.A.ctl.front?'entr':'front';S.ppl-=100;S.A.ctl[s]=Math.min(100,S.A.ctl[s]+10);alog('Люди таскают мебель и сейфы к входу «'+SECTORS.find(x=>x.id===s).nm+'».');}},
-  {t:'Звонок в Генштаб',           d:()=>'шанс '+Math.round(Math.min(1,S.pts.gs/160+(S.A.gsB||0))*100)+'%: одна часть уходит от здания', once:1, req:()=>S.flags.noComms?'связи нет':deputies(S)>=5||'нет депутатов',
-   run:()=>{const c=S.pts.gs/160+(S.A.gsB||0); const g=S.A.units.filter(u=>['taman','vv','omon'].includes(u.id)&&u.cur>0).sort((a,b)=>b.cur-a.cur)[0];
-     if(g&&Math.random()<c){g.cur=0;g.st='stopped';alog(UNITS.find(x=>x.id===g.id).nm+': отвели от здания.');}else alog('В Генштабе не взяли трубку.','bad');}},
+  {t:'Звонок в Генштаб',           d:()=>'разговор с Колесниковым о мотострелках', once:1, req:()=>S.flags.noComms?'связи нет':deputies(S)<5?'нет депутатов':uEff(S.A.units.find(u=>u.id==='taman'))>0||'мотострелки не воюют',
+   run:()=>{const A=S.A; A.card='inc'; A.incId='gs_call'; incidentCard();}},
   {t:'Депутатов — в зал',          d:'Решимость +8', once:1, req:()=>true, run:()=>{S.hope=clamp(S.hope+8,0,100);alog('Съезд заседает под обстрелом. Люди держатся.');}},
   {t:'Тушить пожар',               d:'Люди −100 · Пожар −6', req:()=>(S.A.fire>=1&&S.ppl>=100)||(S.A.fire<1?'ничего не горит':'нужно 100 человек'),
    run:()=>{S.ppl-=100;S.A.fire=Math.max(0,S.A.fire-6);alog('Добровольцы тушат этажи.');}},
