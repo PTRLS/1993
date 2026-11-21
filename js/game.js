@@ -189,7 +189,9 @@ function menuItems(){return [...document.querySelectorAll('#menu div')];}
 function renderMenu(){const has=!!store.get(SAVE);
   menuItems().forEach((d,i)=>{d.classList.toggle('sel',i===menuSel);d.classList.toggle('off',d.dataset.m==='cont'&&!has);});
   if(typeof cheatSync==='function')cheatSync();}
-function newGame(){S=newState();S.am=snap();startDay();}
+// анонимная статистика: window.Stat есть только в публичной копии. Партии с читами концовки и достижения не шлют
+function stat(n,once){try{ if(!window.Stat)return; if(S&&S.cheat&&/^(end|ach)-/.test(n))return; once?Stat.once(n):Stat.ev(n);}catch(e){}}
+function newGame(){S=newState();S.am=snap();stat('start',1);stat('new');startDay();}
 function menuGo(m){
   if(m==='new')introStart(newGame);
   else if(m==='cont'){const s=store.get(SAVE);if(!s)return;S=s;afterLoad();}
@@ -818,7 +820,7 @@ function ending(id,exact){
   if(!exact&&id==='held'&&(S.rad>=70||(S.leg<35&&S.A&&S.A.air<30)||(S.A&&S.A.air<50&&(S.A.lost||0)+S.A.units.reduce((x,u)=>x+(u.lost||0),0)>=1500)))id='held_iso'; // без прессы или ценой большой крови без камер // кучка радикалов без прессы: отбились, но никто не признал
   const E={...ENDINGS[id]}; if(id==='fell')E.h=dateStr(S.day).toUpperCase(); if(S.A)S.A.card=0; $('modal').classList.remove('on');
   store.del(SAVE); store.set(CHRON,S.chron);
-  S.endId=id;
+  S.endId=id; stat('end-'+({win:'win',neu:'neutral'}[endTier(id)]||'lose')+'-'+id.replace(/_/g,'-'));
   showEvent({...E,tier:endTier(id),id:'end',end:1,time:'',urgent:0,ch:[
     {t:'Что стало с каждым',go:()=>showEpi(0)},
     {t:'Итоги в цифрах',go:()=>openFinal()},
@@ -1025,7 +1027,7 @@ function cheatOn(){return !!(store.get(OPTS)||{}).cheat;}
 function cheatSync(){const b=$('cheat-btn'); if(b)b.style.display=cheatOn()&&S&&['map','wh','assault','event','paper'].includes(screen)?'block':'none';
 }
 function cheatBack(){ $('modal').classList.remove('on'); if(screen==='map'||screen==='wh'){save();showMain();} else if(screen==='assault'){save();renderAssault();} }
-function cheatGo(k){ if(!S)return;
+function cheatGo(k){ if(!S)return; S.cheat=1;
   const toCrisis=()=>{ if(S.phase===1){S.phase=2;S.day=Math.max(S.day,DECREE_DAY+1);S.fired.e1400=1;} };
   $('modal').classList.remove('on');
   if(k==='assault'){ if(S.phase===3)return; if(S.phase===1||S.day<12){const T={ppl:3500,mil:250,gun:300,med:40,sup:5,bar:3}; for(const q in T)S[q]=Math.max(S[q]||0,T[q]);} toCrisis(); S.pr=100; S.queue=['assault']; nextEvent(); choose(0); }
@@ -1035,7 +1037,7 @@ function cheatGo(k){ if(!S)return;
   else if(k==='epi'){ S.endId=S.endId||'held'; showEpi(0); }
   cheatSync();
 }
-function openCheats(){ if(!S)return; const win=$('modal-win'); win.classList.add('wide');
+function openCheats(){ if(!S)return; S.cheat=1; const win=$('modal-win'); win.classList.add('wide');
   const R=[['leg','Легитимность',20],['hope','Решимость',20],['rad','Радикализм',20],['city','Москва',20],['med','Эфир',20],['ppl','Люди',1000],['mil','Ополчение',200],['gun','Оружие',200],['sup','Снабжение',3],['omon','Готовность ОМОНа',30]];
   const b=(k,t,c)=>`<div class="law ck${c?' '+c:''}" data-k="${k}"><div class="t">${t}</div></div>`;
   win.innerHTML=`<h2>ЧИТЫ · ДЛЯ ТЕСТОВ</h2>${resStrip('')}

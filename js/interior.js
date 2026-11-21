@@ -236,7 +236,7 @@ const uEff=u=>u.cur<=3?0:u.cur*(uMorV(u)>=MOR_GO?1:uMorV(u)>=MOR_HALT?.55:0);
 function uState(u){const A=S.A; if(u.id==='alpha'&&A.alpha!=='attack')return A.alpha==='wait'?'wait':'refuse'; if(u.cur<=3)return u.st==='refuse'?'refuse':'stopped'; const m=uMorV(u); return m>=MOR_GO?'attack':m>=MOR_HALT?'waver':'halt';}
 const kDead=A=>A.units.reduce((a,u)=>a+(u.lost||0),0);
 function startAssault(){
-  S.phase=3; S.queue=[];
+  S.phase=3; S.queue=[]; stat('assault',1);
   const A=S.A={r:0,shares:{entr:40,front:40,tower:20},ctl:{entr:100,front:100},fire:0,wnd:0,stock:Math.round(S.sup*2),ammo:Math.round(S.gun),airUsed:0,air:clamp(Math.round(S.med*.5+S.city*.2+(S.pts.ost>=100?15:0)),0,100),inc:{},incoming:0,orders:2,used:{},once:{},log:[],alpha:'wait'};
   A.units=UNITS.map(u=>{const st=unitStance(u);return {id:u.id,cur:st==='refuse'?0:st==='waver'?u.str*.9:u.src==='alpha'?0:u.str,st,mor:u.src==='alpha'?95:st==='waver'?44:85,lost:0,dead:0};});
   const ground=A.units.filter(u=>['taman','vv','omon'].includes(u.id));
@@ -573,7 +573,7 @@ function renderAssault(){
     const st=uState(u), m=Math.round(uMorV(u)), dm=u.mor0==null?0:Math.round(m-u.mor0);
     const on=Math.round(uEff(u)/40*10);
     const sub=u.cur<=3&&st!=='wait'?`потери ${fmt(u.lost||0)}${u.why?' · '+u.why:''}`:`потери ${fmt(u.lost||0)} · дух ${m}%`+(dm?` <span class="${dm<0?'p':'n'}">${dm<0?'▼':'▲'}${Math.abs(dm)}${u.why?' '+u.why:''}</span>`:'');
-    return `<div class="urow ${st}"><span class="nm">${U.nm}<small>${sub}</small></span><span class="stt">${STANCE_NM[st]}</span><div class="b r">${Array.from({length:10},(_,i)=>`<i class="${i<on?'on':''}"></i>`).join('')}</div></div>`;}).join('')+'<div class="uhint">дух от 50: идут · 25–49: вполсилы · ниже 25: стоят. Потери и эфир сбивают дух. Ельцин может один раз вернуть часть звонком</div>';
+    return `<div class="urow ${st}"><span class="nm">${U.nm}<small>${sub}</small></span><span class="stt">${STANCE_NM[st]}</span></div>`;}).join('')+'<div class="uhint">дух от 50: идут · 25–49: вполсилы · ниже 25: стоят</div>';
   // sectors
   $('a-sect').innerHTML=`<h2>ОБОРОНА <span>сила ${fmt(F)} · патронов на ${S.mil>0?Math.floor(A.ammo/Math.max(1,Math.round(S.mil/8))):'—'} ч.</span></h2>`+SECTORS.map(s=>{const sh=A.shares[s.id];const c=A.ctl[s.id];
     const pr=s.id==='tower'?`<small class="${sh<10?'n':'p'}">${sh<10?'пусто: чужие стрелки наверху, Решимость −2/час':'снайперы: натиск на оба входа −'+Math.round(towerCut(A)*100)+'%'}</small>`:(()=>{const {D,A:a}=assaultSector(s.id);const L=A.last&&A.last[s.id];return `<small class="${a>D?'n':'p'}">оборона ${Math.round(D)} против натиска ${Math.round(a)}: ${a>D?'теснят':'держим'}${L?` · за час: мы −${fmt(L.lost)}, они −${fmt(L.kl)}`:''}</small>`;})();
