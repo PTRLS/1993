@@ -133,7 +133,7 @@ if(BG==='paper'){ // pencil grid with square labels, ink road casings
 // White House + SEV
 R(55,51,11,8,'#7a766b');R(56,52,9,6,'#a9a497');R(56,52,9,.5,'#d6d2c4');R(58.5,49,4,4,'#c2beb0');R(58.5,49,4,.5,'#e0dccd');
 for(let x=56.5;x<65;x+=1)R(x,54,.5,.5,'#55534c');
-R(67,49,3,9,'#8a8a8a');R(70.5,49,3,9,'#777');R(67,49,3,.5,'#aaa');R(70.5,49,3,.5,'#999');R(66,57,8.5,1,'#555');
+// полосатый серый блок справа от Белого дома (мост-рампа) убран по просьбе Ивана
 
 
 MapArt.base=g.getImageData(0,0,W,H); MapArt.g=g; MapArt.px=px; MapArt.K=K; MapArt.W=W; MapArt.H=H;
