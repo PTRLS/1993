@@ -85,12 +85,42 @@ async function achCount(name){ if(name in ACH_NET)return ACH_NET[name];
   const r=await fetch('https://game1993.goatcounter.com/counter/'+encodeURIComponent('ev/'+name)+'.json'); const j=await r.json();
   return ACH_NET[name]=parseInt(String(j.count_unique||'0').replace(/\D/g,''),10)||0; }
 const endEvName=id=>'end-'+({win:'win',neu:'neutral'}[endTier(id)]||'lose')+'-'+id.replace(/_/g,'-');
-async function achNetFill(){ if(!/^https?:/.test(location.protocol)||achNetOn===false)return;
-  try{const total=await achCount('start'); achNetOn=true; if(total<20){const e=$('ach-net'); if(e)e.textContent='Общая статистика появится, когда наберётся 20 игроков (сейчас '+total+').'; return;}
-    const e=$('ach-net'); if(e)e.textContent='Всего играло: '+fmt(total)+'. Проценты: доля игроков, получивших достижение или увидевших концовку.';
+const netOk=()=>/^https?:/.test(location.protocol)&&achNetOn!==false;
+const pct=(n,t)=>t?(n>0&&n/t*100<1?'<1':Math.round(n/t*100))+'%':'—';
+async function achNetFill(){ const e=$('ach-net'); if(!netOk()){ if(e)e.textContent='Проценты игроков видны, когда игра открыта по ссылке и есть сеть. Достижения хранятся в этом браузере.'; return; }
+  try{const total=await achCount('start'); achNetOn=true;
+    if(e)e.textContent='Всего играло: '+fmt(total)+'. У каждого достижения: доля игроков и сколько человек его получили.'+(total<20?' Данных пока мало.':'');
     const els=[...document.querySelectorAll('#modal-win [data-net]')];
-    await Promise.all(els.map(async el=>{try{const n=await achCount(el.dataset.net); el.textContent=(n/total*100<1&&n>0?'<1':Math.round(n/total*100))+'%';}catch(e){}}));
-  }catch(e){achNetOn=false;} }
+    await Promise.all(els.map(async el=>{try{const n=await achCount(el.dataset.net); el.innerHTML=pct(n,total)+'<small> · '+fmt(n)+'</small>';}catch(e){}}));
+  }catch(e){achNetOn=false; {const z=$('ach-net'); if(z)z.textContent='Общий счётчик сейчас недоступен. Достижения хранятся в этом браузере.';}} }
+// ---------- экран «Статистика»: все игроки (по сети) и вы (из браузера) ----------
+function openStats(){const st=achStats(), g=achGot(), win=$('modal-win'); win.classList.add('full');
+  const ids=Object.keys(ENDINGS), nm=id=>id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id, TN={win:'Победы',neu:'Нейтральные исходы',lose:'Поражения'};
+  const mine={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])mine[endTier(id)]+=st.ends[id];
+  const bar=(k,l,cls)=>`<div class="stb ${cls||''}"><span>${l}</span><div><i data-bar="${k}"></i></div><b data-val="${k}">…</b></div>`;
+  const tierBlock=t=>`<h3 class="sth t-${t}">${TN[t]} <b data-val="tier-${t}"></b></h3>`+ids.filter(id=>endTier(id)===t).map(id=>bar(endEvName(id),nm(id),'t-'+t)).join('');
+  win.innerHTML=`<div class="close xtop">✕ ЗАКРЫТЬ</div><h2>СТАТИСТИКА</h2><div class="sub" id="st-net">Загружаю общий счётчик…</div>
+   <div class="stg"><div><h3 class="sth">ВСЕ ИГРОКИ</h3>${bar('start','Начали игру')}${bar('decree','Дожили до указа №1400')}${bar('assault','Дошли до штурма')}
+     <h3 class="sth">ЧЕМ КОНЧИЛОСЬ <small>доля от всех законченных партий</small></h3>${tierBlock('win')}${tierBlock('neu')}${tierBlock('lose')}</div>
+    <div><h3 class="sth">ВЫ</h3>
+     <div class="stm">Партий сыграно<b>${st.games||0}</b></div><div class="stm">Дошли до штурма<b>${st.assaults||0}</b></div>
+     <div class="stm">Побед<b class="p">${mine.win}</b></div><div class="stm">Нейтральных исходов<b>${mine.neu}</b></div><div class="stm">Поражений<b class="n">${mine.lose}</b></div>
+     <div class="stm">Достижений<b>${ACH.filter(a=>g[a.id]).length} из ${ACH.length}</b></div>
+     <h3 class="sth">ВАШИ КОНЦОВКИ</h3>${ids.filter(id=>(st.ends||{})[id]).map(id=>`<div class="stm t-${endTier(id)}">${nm(id)}<b>×${st.ends[id]}</b></div>`).join('')||'<div class="stm">Пока ни одной законченной партии</div>'}
+     <div class="stn">Проценты по достижениям смотрите в разделе «Достижения». Партии с читами в статистику не идут.</div></div></div>`;
+  $('modal').classList.add('on'); win.querySelector('.close').onclick=closeModal; statsFill(ids);
+}
+async function statsFill(ids){const e=$('st-net'), set=(k,v,w)=>{const a=document.querySelector('#modal-win [data-val="'+k+'"]'),b=document.querySelector('#modal-win [data-bar="'+k+'"]'); if(a)a.textContent=v; if(b)b.style.width=Math.max(0,Math.min(100,w||0))+'%';};
+  const blank=t=>{document.querySelectorAll('#modal-win [data-val]').forEach(x=>x.textContent='—'); if(e)e.textContent=t;};
+  if(!netOk())return blank('Общая статистика видна, когда игра открыта по ссылке и есть сеть. Справа ваша личная статистика из этого браузера.');
+  try{const start=await achCount('start'); achNetOn=true; const [dec,ass]=await Promise.all([achCount('decree'),achCount('assault')]);
+    const ev=ids.map(endEvName), cnt=await Promise.all(ev.map(n=>achCount(n).catch(()=>0))), tot=cnt.reduce((a,b)=>a+b,0);
+    if(!$('st-net'))return;
+    e.textContent='Счётчик общий для всех, кто играет по ссылке. Считаются люди, а не партии: каждый учтён один раз.'+(start<20?' Данных пока мало, цифры будут прыгать.':'');
+    set('start',fmt(start),100); set('decree',pct(dec,start)+' · '+fmt(dec),start?dec/start*100:0); set('assault',pct(ass,start)+' · '+fmt(ass),start?ass/start*100:0);
+    const T={win:0,neu:0,lose:0}; ids.forEach((id,i)=>{T[endTier(id)]+=cnt[i]; set(ev[i],pct(cnt[i],tot)+' · '+fmt(cnt[i]),tot?cnt[i]/tot*100:0);});
+    for(const t in T)set('tier-'+t,pct(T[t],tot)+' · '+fmt(T[t]));
+  }catch(x){achNetOn=false; blank('Общий счётчик сейчас недоступен (нет сети или его режет блокировщик). Справа ваша личная статистика.');} }
 function openAch(ch){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('full');
   const tiers={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])tiers[endTier(id)]+=st.ends[id];
   const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'БЕЛЫЙ ДОМ ВЗЯТ':ENDINGS[id].h||id):'???'}${c?' ×'+c:''} <i data-net="${endEvName(id)}"></i></span>`;}).join('');
