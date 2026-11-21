@@ -82,7 +82,8 @@ function achIcon(cv,id,on){const c=cv.getContext('2d'),k=cv.width/16; c.imageSmo
 // ---------- общий счётчик: только по сети, один запрос на путь, кеш на сессию ----------
 const ACH_NET={}; let achNetOn=null;
 async function achCount(name){ if(name in ACH_NET)return ACH_NET[name];
-  const r=await fetch('https://game1993.goatcounter.com/counter/'+encodeURIComponent('ev/'+name)+'.json'); const j=await r.json();
+  // явный период: без него GoatCounter отдаёт закэшированный старый итог
+  const r=await fetch('https://game1993.goatcounter.com/counter/'+encodeURIComponent('ev/'+name)+'.json?start=2026-11-20&end=2030-01-01'); const j=await r.json();
   return ACH_NET[name]=parseInt(String(j.count_unique||'0').replace(/\D/g,''),10)||0; }
 const endEvName=id=>'end-'+({win:'win',neu:'neutral'}[endTier(id)]||'lose')+'-'+id.replace(/_/g,'-');
 const netOk=()=>/^https?:/.test(location.protocol)&&achNetOn!==false;

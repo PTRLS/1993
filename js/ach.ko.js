@@ -1,27 +1,27 @@
 // ===== достижения и статистика. Всё хранится в браузере; проценты игроков берутся из открытого счётчика, только когда игра открыта по сети =====
 const ACH_KEY='1993-ach', STATS_KEY='1993-stats', ACH_KASHIN="data:image/png;base64,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";
 const ACH=[
- {id:'ost',    nm:'Г~оворит М~осква',     d:'В~зять О~станкино'},
- {id:'mer',    nm:'З~дание С~ЭВ',         d:'П~еретянуть м~эрию н~а с~торону С~овета: 70% и в~ыше'},
- {id:'city',   nm:'М~осква з~а н~ас',      d:'П~однять п~оддержку М~осквы д~о 75%'},
- {id:'zero',   nm:'Н~улевой в~ариант',    d:'Д~обиться о~дновременных п~еревыборов б~ез ш~турма'},
- {id:'ring',   nm:'П~рорыв',             d:'С~нять к~ольцо в~округ Б~елого д~ома'},
- {id:'dep',    nm:'С~ъезд в с~боре',      d:'В~стретить ш~турм с 220 д~епутатами в з~дании'},
- {id:'bar',    nm:'П~ять р~ядов',         d:'П~остроить б~аррикады в п~ять р~ядов'},
- {id:'mil',    nm:'Н~ародное о~полчение', d:'В~ыставить к ш~турму 400 б~ойцов'},
- {id:'zhupel', nm:'Л~иберальный ж~упел',  d:'Н~е п~роиграть с Р~НЕ в з~дании и к~леймом «ф~ашисты»'},
- {id:'fluger', nm:'Ф~люгер',             d:'П~устить Р~НЕ в з~дание, п~отом в~ыставить и н~е п~роиграть'},
- {id:'refuse', nm:'О~тказ',              d:'Д~обиться, ч~тобы к н~ачалу ш~турма х~отя б~ы о~дно п~одразделение К~ремля о~тказалось в~ыполнять п~риказ'},
- {id:'tanks',  nm:'И д~ым О~течества н~ам с~ладок', d:'О~становить т~анки н~а м~осту'},
- {id:'alpha',  nm:'Ч~есть о~тдана',       d:'У~говорить «А~льфу» у~йти п~о р~ации'},
- {id:'parley', nm:'П~арламентёры',       d:'У~говорить о~дно и~з п~одразделений К~ремля у~йти с~о ш~турма: б~елый ф~лаг п~осле з~вонка Е~льцина'},
- {id:'meat',   nm:'М~ясорубка',          d:'Н~анести ш~турмующим 400 п~отерь'},
- {id:'dark',   nm:'Д~венадцать ч~асов',   d:'П~родержаться д~о т~емноты'},
- {id:'hold',   nm:'Н~и ш~агу н~азад',      d:'П~родержаться д~о т~емноты, н~е д~ав н~и о~дному в~ходу у~пасть н~иже 50%'},
- {id:'blood',  nm:'М~алой к~ровью',       d:'О~тбиться р~аньше т~емноты: в~ойска К~ремля в~стали и~ли у~шли, в~аши п~отери м~еньше 400'},
- {id:'army',   nm:'А~рмия с н~ародом',    d:'П~обедить, п~еретянув М~инобороны и Г~енштаб н~а с~вою с~торону'},
- {id:'elect',  nm:'В~ыборы',             d:'О~тбить ш~турм и д~обиться в~ыборов н~а у~словиях С~ъезда'},
- {id:'kashin', nm:'О~лег К~ашин',         d:'В~ы в~сё з~наете п~ро 93-й г~од. П~олучить в~се о~стальные д~остижения'},
+ {id:'ost',    nm:'모스크바가 말한다',     d:'오스탄키노를 점령하라'},
+ {id:'mer',    nm:'경제상호원조회의 건물',         d:'시청을 최고회의 편으로 끌어온다: 70% 이상'},
+ {id:'city',   nm:'모스크바는 우리 편',      d:'모스크바 지지율을 75%로 올린다'},
+ {id:'zero',   nm:'제로 옵션',    d:'강습 없이 동시 재선거를 달성한다'},
+ {id:'ring',   nm:'돌파',             d:'백악관 주변 봉쇄선을 해제한다'},
+ {id:'dep',    nm:'인민대표대회 전원 집결',      d:'건물 안 의원 220명으로 강습을 맞는다'},
+ {id:'bar',    nm:'다섯 줄',         d:'다섯 줄 깊이의 바리케이드를 쌓는다'},
+ {id:'mil',    nm:'인민 민병', d:'강습에 맞춰 전투원 400명을 내보낸다'},
+ {id:'zhupel', nm:'자유주의의 허수아비',  d:'RNE가 건물에 있고 ‘파시스트’라는 낙인이 붙은 상태에서도 지지 않는다'},
+ {id:'fluger', nm:'풍향계',             d:'RNE를 건물에 들였다가 내보내고, 지지 않는다'},
+ {id:'refuse', nm:'거부',              d:'강습 시작 전까지 크렘린 부대 최소 하나가 명령 집행을 거부하도록 만든다'},
+ {id:'tanks',  nm:'조국의 연기는 우리에게 달콤하다', d:'다리 위의 전차를 멈춘다'},
+ {id:'alpha',  nm:'경례 완료',       d:'무전으로 ‘알파’를 설득해 떠나게 한다'},
+ {id:'parley', nm:'협상가',       d:'크렘린 부대 하나를 강습에서 빠지게 설득한다: 옐친의 전화 후 백기'},
+ {id:'meat',   nm:'분쇄기',          d:'강습 측에 400명의 손실을 입힌다'},
+ {id:'dark',   nm:'열두 시간',   d:'어두워질 때까지 버틴다'},
+ {id:'hold',   nm:'한 발짝도 물러서지 않는다',      d:'어두워질 때까지 버티되, 어느 출입구도 50% 아래로 떨어뜨리지 않는다'},
+ {id:'blood',  nm:'적은 피로',       d:'어둠 전에 물리친다: 크렘린 부대가 멈추거나 떠나고, 여러분의 손실은 400 미만'},
+ {id:'army',   nm:'군대는 인민과 함께',    d:'승리하고, 국방부와 총참모부를 여러분 편으로 끌어온다'},
+ {id:'elect',  nm:'선거',             d:'강습을 격퇴하고 인민대표대회의 조건으로 선거를 얻는다'},
+ {id:'kashin', nm:'올레그 카신',         d:'여러분은 1993년을 모두 안다. 다른 모든 업적을 얻으세요'},
 ];
 const achGot=()=>store.get(ACH_KEY)||{};
 const achStats=()=>store.get(STATS_KEY)||{games:0,assaults:0,ends:{}};
@@ -30,7 +30,7 @@ function achGive(id){ if(!S||S.cheat)return; const g=achGot(); if(g[id]&&g[id]!=
 let achQ=[],achBusy=0;
 function achToast(id){achQ.push(id); if(!achBusy)achNext();}
 function achNext(){const id=achQ.shift(), el=$('ach-toast'); if(!id){achBusy=0;el.classList.remove('on');return;} achBusy=1; const a=ACH.find(x=>x.id===id);
-  el.innerHTML=`<canvas width="48" height="48"></canvas><div><small>Д~ОСТИЖЕНИЕ</small><b>${a.nm}</b><span>${a.d}</span></div>`; achIcon(el.querySelector('canvas'),id,true); el.classList.add('on');
+  el.innerHTML=`<canvas width="48" height="48"></canvas><div><small>업적</small><b>${a.nm}</b><span>${a.d}</span></div>`; achIcon(el.querySelector('canvas'),id,true); el.classList.add('on');
   try{Sfx.play('paper');}catch(e){} setTimeout(()=>{el.classList.remove('on');setTimeout(achNext,400);},4200);}
 // проверка условий раз в секунду, пока идёт партия
 function achTick(){ if(!S||S.cheat||screen==='title'||screen==='intro'||S.endId)return; const G=id=>achGive(id);
@@ -40,7 +40,7 @@ function achTick(){ if(!S||S.cheat||screen==='title'||screen==='intro'||S.endId)
   A.minCtl=Math.min(A.minCtl==null?100:A.minCtl,A.ctl.entr,A.ctl.front);
   if(A.r===0&&A.card!=='muster'){ if(deputies(S)>=220)G('dep'); if(S.mil>=400)G('mil'); if(A.units.some(u=>u.st==='refuse'&&u.id!=='alpha'))G('refuse'); }
   const t=A.units.find(u=>u.id==='tanks'); if(A.r>=1&&t.st!=='refuse'&&(t.cur<=3||uMorV(t)<MOR_HALT))G('tanks');
-  if(A.alpha==='refuse')G('alpha'); if(A.units.some(u=>u.why==='у~вели ч~асть'))G('parley'); if(kDead(A)>=400)G('meat');
+  if(A.alpha==='refuse')G('alpha'); if(A.units.some(u=>u.why==='부대를 이끌고 빠져나갔다'))G('parley'); if(kDead(A)>=400)G('meat');
 }
 setInterval(()=>{try{achTick();}catch(e){}},1000);
 function achEnd(id){ if(!S||S.cheat)return; try{achTickEnd();}catch(e){}
@@ -82,55 +82,56 @@ function achIcon(cv,id,on){const c=cv.getContext('2d'),k=cv.width/16; c.imageSmo
 // ---------- общий счётчик: только по сети, один запрос на путь, кеш на сессию ----------
 const ACH_NET={}; let achNetOn=null;
 async function achCount(name){ if(name in ACH_NET)return ACH_NET[name];
-  const r=await fetch('https://game1993.goatcounter.com/counter/'+encodeURIComponent('ev/'+name)+'.json'); const j=await r.json();
+  // явный период: без него GoatCounter отдаёт закэшированный старый итог
+  const r=await fetch('https://game1993.goatcounter.com/counter/'+encodeURIComponent('ev/'+name)+'.json?start=2026-11-20&end=2030-01-01'); const j=await r.json();
   return ACH_NET[name]=parseInt(String(j.count_unique||'0').replace(/\D/g,''),10)||0; }
 const endEvName=id=>'end-'+({win:'win',neu:'neutral'}[endTier(id)]||'lose')+'-'+id.replace(/_/g,'-');
 const netOk=()=>/^https?:/.test(location.protocol)&&achNetOn!==false;
 const pct=(n,t)=>t?(n>0&&n/t*100<1?'<1':Math.round(n/t*100))+'%':'—';
-async function achNetFill(){ const e=$('ach-net'); if(!netOk()){ if(e)e.textContent='П~роценты и~гроков в~идны, к~огда и~гра о~ткрыта п~о с~сылке и е~сть с~еть. Д~остижения х~ранятся в э~том б~раузере.'; return; }
+async function achNetFill(){ const e=$('ach-net'); if(!netOk()){ if(e)e.textContent='링크로 게임을 열고 인터넷에 연결되어 있으면 플레이어 비율이 표시된다. 업적은 이 브라우저에 저장된다.'; return; }
   try{const total=await achCount('start'); achNetOn=true;
-    if(e)e.textContent='В~сего и~грало: '+fmt(total)+'. У к~аждого д~остижения: д~оля и~гроков и с~колько ч~еловек е~го п~олучили.'+(total<20?' Д~анных п~ока м~ало.':'');
+    if(e)e.textContent='총 플레이 인원: '+fmt(total)+'. 각 업적마다: 플레이어 비율과 획득한 사람 수.'+(total<20?' 아직 데이터가 충분하지 않다.':'');
     const els=[...document.querySelectorAll('#modal-win [data-net]')];
     await Promise.all(els.map(async el=>{try{const n=await achCount(el.dataset.net); el.innerHTML=pct(n,total)+'<small> · '+fmt(n)+'</small>';}catch(e){}}));
-  }catch(e){achNetOn=false; {const z=$('ach-net'); if(z)z.textContent='О~бщий с~чётчик с~ейчас н~едоступен. Д~остижения х~ранятся в э~том б~раузере.';}} }
+  }catch(e){achNetOn=false; {const z=$('ach-net'); if(z)z.textContent='공용 집계는 지금 이용할 수 없다. 업적은 이 브라우저에 저장된다.';}} }
 // ---------- экран «Статистика»: все игроки (по сети) и вы (из браузера) ----------
 function openStats(){const st=achStats(), g=achGot(), win=$('modal-win'); win.classList.add('full');
-  const ids=Object.keys(ENDINGS), nm=id=>id==='fell'?'Б~ЕЛЫЙ Д~ОМ В~ЗЯТ':ENDINGS[id].h||id, TN={win:'П~обеды',neu:'Н~ейтральные и~сходы',lose:'П~оражения'};
+  const ids=Object.keys(ENDINGS), nm=id=>id==='fell'?'백악관 점령':ENDINGS[id].h||id, TN={win:'승리',neu:'중립적 결과',lose:'패배'};
   const mine={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])mine[endTier(id)]+=st.ends[id];
   const bar=(k,l,cls)=>`<div class="stb ${cls||''}"><span>${l}</span><div><i data-bar="${k}"></i></div><b data-val="${k}">…</b></div>`;
   const tierBlock=t=>bar('tier-'+t,TN[t],'t-'+t);
-  win.innerHTML=`<div class="close xtop">✕ З~АКРЫТЬ</div><h2>С~ТАТИСТИКА</h2><div class="sub" id="st-net">З~агружаю о~бщий с~чётчик…</div>
-   <div class="stg"><div><h3 class="sth">В~СЕ И~ГРОКИ</h3>${bar('start','Н~ачали и~гру')}${bar('decree','Д~ожили д~о у~каза №1400')}${bar('assault','Д~ошли д~о ш~турма')}
-     <h3 class="sth">Ч~ЕМ К~ОНЧИЛОСЬ <small>д~оля о~т в~сех з~аконченных п~артий</small></h3>${tierBlock('win')}${tierBlock('neu')}${tierBlock('lose')}</div>
-    <div><h3 class="sth">В~Ы</h3>
-     <div class="stm">П~артий с~ыграно<b>${st.games||0}</b></div><div class="stm">Д~ошли д~о ш~турма<b>${st.assaults||0}</b></div>
-     <div class="stm">П~обед<b class="p">${mine.win}</b></div><div class="stm">Н~ейтральных и~сходов<b>${mine.neu}</b></div><div class="stm">П~оражений<b class="n">${mine.lose}</b></div>
-     <div class="stm">Д~остижений<b>${ACH.filter(a=>g[a.id]).length} и~з ${ACH.length}</b></div>
-     <h3 class="sth">В~АШИ К~ОНЦОВКИ</h3>${ids.filter(id=>(st.ends||{})[id]).map(id=>`<div class="stm t-${endTier(id)}">${nm(id)}<b>×${st.ends[id]}</b></div>`).join('')||'<div class="stm">П~ока н~и о~дной з~аконченной п~артии</div>'}
-     <div class="stn">П~роценты п~о д~остижениям с~мотрите в р~азделе «Д~остижения». П~артии с ч~итами в с~татистику н~е и~дут.</div></div></div>`;
+  win.innerHTML=`<div class="close xtop">✕ 닫기</div><h2>통계</h2><div class="sub" id="st-net">공용 집계를 불러오는 중…</div>
+   <div class="stg"><div><h3 class="sth">모든 플레이어</h3>${bar('start','게임 시작')}${bar('decree','1400호 대통령령을 보았다')}${bar('assault','강습까지 갔다')}
+     <h3 class="sth">결말 분포 <small>끝난 판 전체 중 비율</small></h3>${tierBlock('win')}${tierBlock('neu')}${tierBlock('lose')}</div>
+    <div><h3 class="sth">당신</h3>
+     <div class="stm">플레이한 판<b>${st.games||0}</b></div><div class="stm">강습까지 간 판<b>${st.assaults||0}</b></div>
+     <div class="stm">승리<b class="p">${mine.win}</b></div><div class="stm">중립적 결과<b>${mine.neu}</b></div><div class="stm">패배<b class="n">${mine.lose}</b></div>
+     <div class="stm">업적<b>${ACH.filter(a=>g[a.id]).length} / ${ACH.length}</b></div>
+     <h3 class="sth">당신의 결말</h3>${ids.filter(id=>(st.ends||{})[id]).map(id=>`<div class="stm t-${endTier(id)}">${nm(id)}<b>×${st.ends[id]}</b></div>`).join('')||'<div class="stm">아직 끝난 판이 없다</div>'}
+     <div class="stn">업적별 비율은 «업적» 항목에서 보세요. 치트를 쓴 판은 통계에 들어가지 않습니다.</div></div></div>`;
   $('modal').classList.add('on'); win.querySelector('.close').onclick=closeModal; statsFill(ids);
 }
 async function statsFill(ids){const e=$('st-net'), set=(k,v,w)=>{const a=document.querySelector('#modal-win [data-val="'+k+'"]'),b=document.querySelector('#modal-win [data-bar="'+k+'"]'); if(a)a.textContent=v; if(b)b.style.width=Math.max(0,Math.min(100,w||0))+'%';};
   const blank=t=>{document.querySelectorAll('#modal-win [data-val]').forEach(x=>x.textContent='—'); if(e)e.textContent=t;};
-  if(!netOk())return blank('О~бщая с~татистика в~идна, к~огда и~гра о~ткрыта п~о с~сылке и е~сть с~еть. С~права в~аша л~ичная с~татистика и~з э~того б~раузера.');
+  if(!netOk())return blank('링크로 게임을 열고 인터넷에 연결되어 있으면 전체 통계가 표시된다. 오른쪽은 이 브라우저의 개인 통계다.');
   try{const start=await achCount('start'); achNetOn=true; const [dec,ass]=await Promise.all([achCount('decree'),achCount('assault')]);
     const ev=ids.map(endEvName), cnt=await Promise.all(ev.map(n=>achCount(n).catch(()=>0))), tot=cnt.reduce((a,b)=>a+b,0);
     if(!$('st-net'))return;
-    e.textContent='С~чётчик о~бщий д~ля в~сех, к~то и~грает п~о с~сылке. С~читаются л~юди, а н~е п~артии: к~аждый у~чтён о~дин р~аз.'+(start<20?' Д~анных п~ока м~ало, ц~ифры б~удут п~рыгать.':'');
+    e.textContent='이 집계는 링크로 플레이하는 모든 사람이 공유한다. 판이 아니라 사람을 센다: 각자 한 번씩 계산된다.'+(start<20?' 아직 데이터가 적어 숫자가 크게 흔들린다.':'');
     set('start',fmt(start),100); set('decree',pct(dec,start)+' · '+fmt(dec),start?dec/start*100:0); set('assault',pct(ass,start)+' · '+fmt(ass),start?ass/start*100:0);
     const T={win:0,neu:0,lose:0}; ids.forEach((id,i)=>{T[endTier(id)]+=cnt[i];});
     for(const t in T)set('tier-'+t,pct(T[t],tot)+' · '+fmt(T[t]),tot?T[t]/tot*100:0);
-  }catch(x){achNetOn=false; blank('О~бщий с~чётчик с~ейчас н~едоступен (н~ет с~ети и~ли е~го р~ежет б~локировщик). С~права в~аша л~ичная с~татистика.');} }
+  }catch(x){achNetOn=false; blank('공용 집계를 지금 이용할 수 없다(네트워크 없음, 또는 차단 프로그램이 막음). 오른쪽은 개인 통계다.');} }
 function openAch(ch){const g=achGot(), st=achStats(), n=ACH.filter(a=>g[a.id]).length, win=$('modal-win'); win.classList.add('full');
   const tiers={win:0,neu:0,lose:0}; for(const id in st.ends||{})if(ENDINGS[id])tiers[endTier(id)]+=st.ends[id];
-  const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'Б~ЕЛЫЙ Д~ОМ В~ЗЯТ':ENDINGS[id].h||id):'???'}${c?' ×'+c:''}</span>`;}).join('');
-  win.innerHTML=`<div class="close xtop">✕ З~АКРЫТЬ</div><h2>Д~ОСТИЖЕНИЯ · ${n} И~З ${ACH.length}</h2><div class="sub" id="ach-net">Д~остижения х~ранятся в э~том б~раузере. В п~артиях с ч~итами о~ни н~е в~ыдаются.</div>
+  const ends=Object.keys(ENDINGS).map(id=>{const c=(st.ends||{})[id]||0,t=endTier(id);return `<span class="aend t-${t}${c?'':' no'}">${c?(id==='fell'?'백악관 점령':ENDINGS[id].h||id):'???'}${c?' ×'+c:''}</span>`;}).join('');
+  win.innerHTML=`<div class="close xtop">✕ 닫기</div><h2>업적 · ${n} / ${ACH.length}</h2><div class="sub" id="ach-net">업적은 이 브라우저에 저장된다. 치트를 쓴 판에서는 업적이 주어지지 않는다.</div>
    <div class="achg">`+ACH.map(a=>`<div class="ach${g[a.id]?' on':''}"><canvas width="64" height="64" data-a="${a.id}"></canvas><div><b>${a.nm}</b><span>${a.d}</span></div><i data-net="ach-${a.id}"></i></div>`).join('')+`</div>
-   <h3 class="achh">В~АША С~ТАТИСТИКА</h3><div class="achs">П~артий: <b>${st.games||0}</b> · д~ошли д~о ш~турма: <b>${st.assaults||0}</b> · п~обед: <b class="p">${tiers.win}</b> · н~ейтральных: <b>${tiers.neu}</b> · п~оражений: <b class="n">${tiers.lose}</b></div>
-   <div class="aes">${ends}</div>`+((ch||cheatOn())?`<div class="achc"><b>Ч~ИТ:</b> <u data-c="all">о~ткрыть в~се</u> <u data-c="none">с~бросить</u> <u data-c="toast">п~оказать п~лашку</u> <span>о~ткрытое ч~итом в о~бщую с~татистику н~е и~дёт</span></div>`:'');
+   <h3 class="achh">당신의 통계</h3><div class="achs">판: <b>${st.games||0}</b> · 강습까지: <b>${st.assaults||0}</b> · 승리: <b class="p">${tiers.win}</b> · 중립: <b>${tiers.neu}</b> · 패배: <b class="n">${tiers.lose}</b></div>
+   <div class="aes">${ends}</div>`+((ch||cheatOn())?`<div class="achc"><b>치트:</b> <u data-c="all">모두 열기</u> <u data-c="none">초기화</u> <u data-c="toast">알림 띠 보기</u> <span>치트로 연 것은 공용 통계에 들어가지 않는다</span></div>`:'');
   win.querySelectorAll('.achc u').forEach(u=>u.onclick=()=>{const c=u.dataset.c; if(c==='toast'){achToast(ACH[Math.floor(Math.random()*ACH.length)].id);return;}
     const g2=achGot(); if(c==='all'){for(const a of ACH)if(!g2[a.id])g2[a.id]='cheat';} else {for(const k in g2)if(g2[k]==='cheat')delete g2[k]; if(u.dataset.sure){store.set(ACH_KEY,{});openAch(1);return;} }
-    store.set(ACH_KEY,g2); openAch(1); if(c==='none'){const b=document.querySelector('.achc u[data-c="none"]'); if(Object.keys(g2).length){b.textContent='с~бросить и н~астоящие ('+Object.keys(g2).length+')';b.dataset.sure=1;}}});
+    store.set(ACH_KEY,g2); openAch(1); if(c==='none'){const b=document.querySelector('.achc u[data-c="none"]'); if(Object.keys(g2).length){b.textContent='초기화, 그리고 실제 획득한 ('+Object.keys(g2).length+')';b.dataset.sure=1;}}});
   win.querySelectorAll('canvas[data-a]').forEach(c=>achIcon(c,c.dataset.a,!!g[c.dataset.a]));
   $('modal').classList.add('on'); win.querySelector('.close').onclick=closeModal; achNetFill();
 }

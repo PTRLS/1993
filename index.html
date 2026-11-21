@@ -27,7 +27,7 @@
 <title>1993</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/screens.css?v=1795288685">
+<link rel="stylesheet" href="css/screens.css?v=1795289956">
 <style>
   :root{
     --bg:#0b0c0f; --panel:#15161a; --panel2:#1c1d22; --line:#33312c; --line-hi:#5a5446;
@@ -510,21 +510,22 @@
 </div>
 
 <script>/* язык: для не-русского грузим переведённые копии скриптов, а русские теги ниже глушим комментарием */
-var SINGLE=false, LANG_BUILD='0.49';
+var SINGLE=false, LANG_BUILD='0.53';
 function langFail(){try{var o=JSON.parse(localStorage.getItem('1993-opts'))||{};delete o.lang;localStorage.setItem('1993-opts',JSON.stringify(o));}catch(e){} if(!/[?&]lang=/.test(location.search))location.reload();}
 (function(){var L=null;try{L=(JSON.parse(localStorage.getItem('1993-opts'))||{}).lang;}catch(e){} var q=(location.search.match(/[?&]lang=(\w+)/)||[])[1]; if(q)L=q;
  if(SINGLE||!L||!/^(en|zh|ko|xx)$/.test(L))return; document.documentElement.lang=L; var v='?v='+LANG_BUILD, t='';
+ if(L==='zh'||L==='ko'){t+='<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family='+(L==='zh'?'Noto+Sans+SC':'Noto+Sans+KR')+'&display=swap">';t+='<style>html[lang="'+L+'"] body,html[lang="'+L+'"] body *{font-family:'+(L==='zh'?'"Noto Sans SC"':'"Noto Sans KR"')+',sans-serif !important}<\/style>';}
  ['js/assets.js','js/faces.js','js/title.js','js/map.js','music/music.js','js/data.'+L+'.js','js/interior.'+L+'.js','js/game.'+L+'.js','js/ach.'+L+'.js'].forEach(function(u,i){t+='<script src="'+u+v+'"'+(i===4?' onerror="this.remove()"':i===5?' onerror="langFail()"':'')+'><\/script>';});
  document.write(t+'<!--');})();</script>
-<script src="js/assets.js?v=1795288685"></script>
-<script src="js/faces.js?v=1795288685"></script>
-<script src="js/title.js?v=1795288685"></script>
-<script src="js/map.js?v=1795288685"></script>
-<script src="music/music.js?v=1795288685" onerror="this.remove()"></script>
-<script src="js/data.js?v=1795288685"></script>
-<script src="js/interior.js?v=1795288685"></script>
-<script src="js/game.js?v=1795288685"></script>
-<script src="js/ach.js?v=1795288685"></script>
+<script src="js/assets.js?v=1795289956"></script>
+<script src="js/faces.js?v=1795289956"></script>
+<script src="js/title.js?v=1795289956"></script>
+<script src="js/map.js?v=1795289956"></script>
+<script src="music/music.js?v=1795289956" onerror="this.remove()"></script>
+<script src="js/data.js?v=1795289956"></script>
+<script src="js/interior.js?v=1795289956"></script>
+<script src="js/game.js?v=1795289956"></script>
+<script src="js/ach.js?v=1795289956"></script>
 <!-- /lang -->
 <script>document.querySelectorAll('.sndb').forEach(b=>b.onclick=e=>{e.stopPropagation();Music.toggle();});$('s-intro').onclick=()=>introNext(false);Music.sync();</script>
 </body>
